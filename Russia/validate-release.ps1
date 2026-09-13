@@ -27,10 +27,11 @@ Check (($rules | Sort-Object -Unique).Count -eq $rules.Count) 'unique domain rul
 Check ($rules.Count -lt 3000) 'bounded rule count'
 foreach ($rule in $rules) { if ($rule -notmatch '^DOMAIN(?:-SUFFIX)?,[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?,REJECT$') { $failures.Add('invalid domain rule'); break } }
 $patternCases = @{
-  'Reddit-RU.module'='https://gql.reddit.com/'
-  'X-RU.module'='https://x.com/i/api/graphql/test/HomeTimeline?variables=test'
-  'TikTok-Web-RU.module'='https://www.tiktok.com/api/recommend/item_list/?count=20'
-  'YouTube-RU.module'='https://youtubei.googleapis.com/youtubei/v1/player?alt=proto'
+  'RU-Reddit'='https://gql.reddit.com/'
+  'RU-X'='https://x.com/i/api/graphql/test/HomeTimeline?variables=test'
+  'RU-TikTok-Web'='https://www.tiktok.com/api/recommend/item_list/?count=20'
+  'RU-YouTube-Player'='https://youtubei.googleapis.com/youtubei/v1/player?alt=proto'
+  'RU-YouTube-Web'='https://www.youtube.com/youtubei/v1/browse'
 }
 foreach ($file in Get-ChildItem -LiteralPath $root -Filter '*.module') {
   $text = [IO.File]::ReadAllText($file.FullName)
@@ -38,6 +39,7 @@ foreach ($file in Get-ChildItem -LiteralPath $root -Filter '*.module') {
   Check (!($text -match '(skip-cert-verify|ca-p12|ca-passphrase|hostname\s*=\s*%APPEND%\s*\*)')) ($file.Name+' no CA or broad MITM')
   Check (!($text -match '(?m)^(DOMAIN-KEYWORD|IP-CIDR)|,(DIRECT|PROXY)(?:,|\r?$)')) ($file.Name+' only ad decisions')
   foreach ($line in $text -split '\r?\n') {
+    $scriptId = if ($line -match '^([A-Za-z0-9_-]+)\s*=\s*type=http-response') { $Matches[1] } else { '' }
     if ($line -match 'script-path=(\S+)') {
       $url = $Matches[1]
       Check ($url -match '^https://raw\.githubusercontent\.com/pivazyaa/blockads-ru/[a-f0-9]{40}/Russia/(social-json|youtube-player)\.js$') ($file.Name+' pinned script URL')
@@ -47,13 +49,25 @@ foreach ($file in Get-ChildItem -LiteralPath $root -Filter '*.module') {
       $pattern=$Matches[1]; $regex=New-Object Text.RegularExpressions.Regex($pattern)
       Check (!$regex.IsMatch('https://idmsa.apple.com/')) ($file.Name+' excludes Apple login')
       Check (!$regex.IsMatch('https://www.tbank.ru/')) ($file.Name+' excludes banking')
-      if ($file.Name -ne 'YouTube-RU.module' -or $line -match 'RU-YouTube-Player') {
-        Check $regex.IsMatch($patternCases[$file.Name]) ($file.Name+' endpoint matches')
-      }
+      Check ($patternCases.ContainsKey($scriptId) -and $regex.IsMatch($patternCases[$scriptId])) ($file.Name+' '+$scriptId+' endpoint matches')
     }
   }
 }
-$report = [ordered]@{checks=$checks;failures=@($failures);domain_rules=$rules.Count;iphone_runtime_tested=$false}
+$combined = [IO.File]::ReadAllText(($root+'\blockAds-RU.module'))
+foreach ($section in @('Rule','Script','MITM')) {
+  Check ([regex]::Matches($combined,('(?m)^\['+$section+'\]\r?$')).Count -eq 1) ('combined single '+$section+' section')
+}
+$combinedNames = @([regex]::Matches($combined,'(?m)^([A-Za-z0-9_-]+)\s*=\s*type=http-response') | ForEach-Object {$_.Groups[1].Value})
+Check ($combinedNames.Count -eq 5) 'combined includes five script entries'
+Check (($combinedNames | Sort-Object -Unique).Count -eq 5) 'combined has no duplicate scripts'
+foreach ($scriptId in $patternCases.Keys) { Check ($combinedNames -contains $scriptId) ('combined includes '+$scriptId) }
+$hostMatch = [regex]::Match($combined,'(?m)^hostname\s*=\s*%APPEND%\s*([^\r\n]+)')
+$combinedHosts = @($hostMatch.Groups[1].Value.Split(',') | ForEach-Object {$_.Trim()})
+Check ($combinedHosts.Count -eq 15) 'combined MITM host count'
+Check (($combinedHosts | Sort-Object -Unique).Count -eq 15) 'combined has no duplicate MITM hosts'
+foreach ($url in $patternCases.Values) { Check ($combinedHosts -contains ([uri]$url).Host) ('combined MITM covers '+([uri]$url).Host) }
+Check (!($combinedHosts | Where-Object {$_ -match '(^|\.)(apple\.com|icloud\.com|tbank\.ru|tinkoff\.ru|telegram\.org|googlevideo\.com)$'})) 'combined MITM excludes critical shared services'
+$report = [ordered]@{checks=$checks;failures=@($failures);domain_rules=$rules.Count;combined_scripts=$combinedNames.Count;combined_mitm_hosts=$combinedHosts.Count;iphone_runtime_tested=$false}
 $json=$report | ConvertTo-Json -Depth 5
 [IO.File]::WriteAllText(($root+'\release-checks.json'),$json,(New-Object Text.UTF8Encoding($false)))
 $json

@@ -1,82 +1,82 @@
 [
     {
-        "sha256":  "bae44f87e639b55ac5e2b6e778ec8a7094303ecdd954b30bfb158fd79f437408",
         "file":  ".gitignore",
-        "bytes":  34
+        "bytes":  34,
+        "sha256":  "bae44f87e639b55ac5e2b6e778ec8a7094303ecdd954b30bfb158fd79f437408"
     },
     {
-        "sha256":  "328941c2b33d8a8a3cb0d7159e39c9221e63cc208ca78e6181c62fb4057cc5d3",
         "file":  "blockAds-RU.module",
-        "bytes":  78104
+        "bytes":  80415,
+        "sha256":  "7130b896a86f0570264929ead25b45c3c560147505d3493cd25fad6c57e78c6d"
     },
     {
-        "sha256":  "3c8bf4c772d9250b0518d83e26d2b001561f7962775aaf4179435961fa7f1c79",
         "file":  "build-rules.ps1",
-        "bytes":  8650
+        "bytes":  10971,
+        "sha256":  "5ee85ba943cf4fed0d4643dab2faca9f8701f373b4b398c6b8a010821455d67a"
     },
     {
-        "sha256":  "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
         "file":  "LICENSE",
-        "bytes":  35149
+        "bytes":  35149,
+        "sha256":  "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
     },
     {
-        "sha256":  "e9650c1d2a5047418b3b607802f97a03f3dab932f9c543f474f30e1ac9e10449",
         "file":  "README.md",
-        "bytes":  15873
+        "bytes":  15998,
+        "sha256":  "551e64176634058158204c3f7e6d42a92105d203fbc91888db01fe318dbb20de"
     },
     {
-        "sha256":  "c1bbfd23e32959abbfde94a7aefe1071aaec4726c40dd5f63d9b14c2ca280772",
         "file":  "Reddit-RU.module",
-        "bytes":  967
+        "bytes":  967,
+        "sha256":  "c1bbfd23e32959abbfde94a7aefe1071aaec4726c40dd5f63d9b14c2ca280772"
     },
     {
-        "sha256":  "cbff4da7ecb7937701090db0734db45920b5d4633dc0642b567434d7f77ca28c",
         "file":  "release-checks.json",
-        "bytes":  132
+        "bytes":  195,
+        "sha256":  "f7a160835b09d36dbffaaa03d6744c8b3ac2618adbc6842ad8487d9f9d1863e2"
     },
     {
-        "sha256":  "15c9325f36242495cb9aa2d8c3a813f322f3635127b2dd6c5e793c0f8eef7179",
         "file":  "social-json.js",
-        "bytes":  5087
+        "bytes":  5087,
+        "sha256":  "15c9325f36242495cb9aa2d8c3a813f322f3635127b2dd6c5e793c0f8eef7179"
     },
     {
-        "sha256":  "82ddc55fa137f98c4a8b3365dd3b795b7896f0204723b77dbdd2794155084cd2",
         "file":  "sources.lock.json",
-        "bytes":  28026
+        "bytes":  29631,
+        "sha256":  "9f914eadc14cbfa1191fda1227976675de236d007025869caa60c541b1719a2a"
     },
     {
-        "sha256":  "ddf7aa4b15a8b6cef5429419cb7cb0e97e1be3ec05e984381601a4d55aab6b04",
         "file":  "test-blockads.js",
-        "bytes":  10025
+        "bytes":  10025,
+        "sha256":  "ddf7aa4b15a8b6cef5429419cb7cb0e97e1be3ec05e984381601a4d55aab6b04"
     },
     {
-        "sha256":  "c71b5ad7f7c12d2f0c12bf9906dfa57ee099196513aefb3cd4e7a9e32f57af1b",
         "file":  "test-results.json",
-        "bytes":  1892
+        "bytes":  1892,
+        "sha256":  "c71b5ad7f7c12d2f0c12bf9906dfa57ee099196513aefb3cd4e7a9e32f57af1b"
     },
     {
-        "sha256":  "2eeef5314a7a6902137090678d18a2b8193c7948d065cdaf5bf08b80ca641445",
         "file":  "TikTok-Web-RU.module",
-        "bytes":  695
+        "bytes":  695,
+        "sha256":  "2eeef5314a7a6902137090678d18a2b8193c7948d065cdaf5bf08b80ca641445"
     },
     {
-        "sha256":  "26458462bd930f268446784cd8e38225ea7dab6dd0a093cbbfeb601d806fe5ef",
         "file":  "validate-release.ps1",
-        "bytes":  3835
+        "bytes":  5350,
+        "sha256":  "0fe8e63b9ee8275a8703734e673d506f465083399522cf67cdf4f9b64258dbe2"
     },
     {
-        "sha256":  "4fd586483b9c7e5211d4b118e75a5049e93939460b19683ccb426ea599f61177",
         "file":  "X-RU.module",
-        "bytes":  896
+        "bytes":  896,
+        "sha256":  "4fd586483b9c7e5211d4b118e75a5049e93939460b19683ccb426ea599f61177"
     },
     {
-        "sha256":  "a5af478e3a5e5421a2512ececb009f3ffb56994b124f43087f3e1f4a350da8fe",
         "file":  "youtube-player.js",
-        "bytes":  4413
+        "bytes":  4413,
+        "sha256":  "a5af478e3a5e5421a2512ececb009f3ffb56994b124f43087f3e1f4a350da8fe"
     },
     {
-        "sha256":  "cbb13f84ae703b0956c2426b1ff0d86e05aeeebb76c815f3d60f891b679cbc60",
         "file":  "YouTube-RU.module",
-        "bytes":  1443
+        "bytes":  1443,
+        "sha256":  "cbb13f84ae703b0956c2426b1ff0d86e05aeeebb76c815f3d60f891b679cbc60"
     }
 ]

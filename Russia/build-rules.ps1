@@ -117,31 +117,66 @@ foreach ($key in @($candidates.Keys | Sort-Object {$_.Split(',')[1].Length}, {$_
   if (!$covered) { $kept.Add($key+',REJECT'); if ($p[0] -eq 'DOMAIN-SUFFIX') { [void]$suffixes.Add($hostName) } }
 }
 $rules = @($kept | Sort-Object)
+$mitmSourceRef = 'eba3954ccdcec15556843837735f3500cea4ce78'
+$mitmFiles = @('Reddit-RU.module','X-RU.module','TikTok-Web-RU.module','YouTube-RU.module')
+$scriptLines = New-Object 'System.Collections.Generic.List[string]'
+$scriptNames = New-Object 'System.Collections.Generic.HashSet[string]'
+$mitmHosts = New-Object 'System.Collections.Generic.HashSet[string]'
+foreach ($name in $mitmFiles) {
+  $file = Join-Path ($work+'\sources\mitm') $name
+  Get-PinnedSource $file ('https://raw.githubusercontent.com/pivazyaa/blockads-ru/'+$mitmSourceRef+'/Russia/'+$name)
+  $section = ''
+  foreach ($line in [IO.File]::ReadAllLines($file)) {
+    if ($line -match '^\[([^\]]+)\]$') { $section=$Matches[1]; continue }
+    if (!$line.Trim() -or $line.StartsWith('#')) { continue }
+    if ($section -eq 'Script') {
+      if ($line -notmatch '^([A-Za-z0-9_-]+)\s*=') { throw 'Invalid script entry in source module' }
+      if (!$scriptNames.Add($Matches[1])) { throw 'Duplicate script name in combined module' }
+      $scriptLines.Add($line)
+    } elseif ($section -eq 'MITM') {
+      if ($line -notmatch '^hostname\s*=\s*%APPEND%\s*(.+)$') { throw 'Unexpected MITM directive in source module' }
+      foreach ($hostName in $Matches[1].Split(',')) {
+        $hostName=$hostName.Trim()
+        if ($hostName -notmatch '^[a-z0-9.-]+$') { throw 'Unexpected MITM hostname' }
+        [void]$mitmHosts.Add($hostName)
+      }
+    } else { throw 'Unexpected section in MITM source module' }
+  }
+}
+if ($scriptLines.Count -ne 5 -or $mitmHosts.Count -ne 15) { throw 'Incomplete combined MITM configuration' }
 $header = @'
-#!name=BlockAds RU - Base
-#!desc=Рекламные домены России и других стран. Без перехвата HTTPS. Для Shadowrocket; не меняет DNS и маршрутизацию полезного трафика.
+#!name=BlockAds RU
+#!desc=Единый модуль: рекламные домены + MITM YouTube, Reddit, X и TikTok Web. Для HTTPS нужен собственный доверенный сертификат Shadowrocket и включённая расшифровка.
 #!author=fmz200, AdGuard contributors; adaptation for pivazyaa
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
-#!date=2026-09-13
+#!date=2026-09-14
 # SPDX-License-Identifier: GPL-3.0-only
 # Избирательный форк fmz200 с правилами AdGuard. См. README.md и sources.lock.json.
 # Не импортируйте исходный blockAds одновременно с этой версией.
-# MITM-расширения поставляются отдельно для каждого приложения.
+# Все обработчики уже включены ниже. Отдельные Reddit/X/TikTok/YouTube-модули не добавлять.
+# Скрипты загружаются автоматически по закреплённым ссылкам. CA создаётся на самом iPhone.
 
 [Rule]
 '@
-[IO.File]::WriteAllText(($out+'\blockAds-RU.module'), $header+"`n"+($rules -join "`n")+"`n", $utf8)
+$combined = $header+"`n"+($rules -join "`n")+"`n`n[Script]`n"+($scriptLines -join "`n")+"`n`n[MITM]`n"
+$combined += 'hostname = %APPEND% '+(@($mitmHosts | Sort-Object) -join ', ')+"`n"
+[IO.File]::WriteAllText(($out+'\blockAds-RU.module'), $combined, $utf8)
 $lock = [ordered]@{
-  generated_utc = '2026-09-13'; fmz200_ref = $fmz.ref; adguard_ref = $ag.ref
+  generated_utc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'); fmz200_ref = $fmz.ref; adguard_ref = $ag.ref
   rule_count = $rules.Count; bytes = (Get-Item ($out+'\blockAds-RU.module')).Length
   source_files = $sources; exception_files = $exceptions; fmz_reviewed_domains = $reviewedFmz
   excluded_rules = $excluded; runtime_remote_rule_lists = @()
+  mitm_source_ref = $mitmSourceRef; mitm_source_files = $mitmFiles
+  script_entries = $scriptLines.Count; mitm_hostnames = @($mitmHosts | Sort-Object)
 }
 $hashes = @{}
 foreach ($source in ($sources+$exceptions)) {
   $hashes['AdGuard/'+$source] = (Get-FileHash -LiteralPath (Join-Path ($work+'\sources\adguard') $source) -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 $hashes['fmz200/Shadowrocket/module/blockAds.srmodule'] = (Get-FileHash -LiteralPath ($work+'\upstream\Shadowrocket\module\blockAds.srmodule') -Algorithm SHA256).Hash.ToLowerInvariant()
+foreach ($name in $mitmFiles) {
+  $hashes['MITM/'+$name] = (Get-FileHash -LiteralPath (Join-Path ($work+'\sources\mitm') $name) -Algorithm SHA256).Hash.ToLowerInvariant()
+}
 $lock['source_sha256'] = $hashes
 [IO.File]::WriteAllText(($out+'\sources.lock.json'), ($lock | ConvertTo-Json -Depth 6)+"`n", $utf8)
 Copy-Item -LiteralPath ($work+'\upstream\LICENSE') -Destination ($out+'\LICENSE') -Force

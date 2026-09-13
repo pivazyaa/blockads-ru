@@ -1,9 +1,9 @@
 {
-    "generated_utc":  "2026-09-13",
+    "generated_utc":  "2026-09-13T22:37:16Z",
     "fmz200_ref":  "3ca7487b4e4b86d9af76e50df72c62eacfbb659e",
     "adguard_ref":  "ebd6f4bc46f816cf75a41c9764dd35bed4a65b00",
     "rule_count":  2029,
-    "bytes":  78104,
+    "bytes":  80415,
     "source_files":  [
                          "BaseFilter/sections/adservers.txt",
                          "BaseFilter/sections/adservers_firstparty.txt",
@@ -282,18 +282,47 @@
     "runtime_remote_rule_lists":  [
 
                                   ],
+    "mitm_source_ref":  "eba3954ccdcec15556843837735f3500cea4ce78",
+    "mitm_source_files":  [
+                              "Reddit-RU.module",
+                              "X-RU.module",
+                              "TikTok-Web-RU.module",
+                              "YouTube-RU.module"
+                          ],
+    "script_entries":  5,
+    "mitm_hostnames":  [
+                           "api.twitter.com",
+                           "api.x.com",
+                           "gql.reddit.com",
+                           "gql-fed.reddit.com",
+                           "m.youtube.com",
+                           "music.youtube.com",
+                           "oauth.reddit.com",
+                           "reddit.com",
+                           "twitter.com",
+                           "www.reddit.com",
+                           "www.tiktok.com",
+                           "www.youtube.com",
+                           "x.com",
+                           "youtubei.googleapis.com",
+                           "youtubei-att.googleapis.com"
+                       ],
     "source_sha256":  {
-                          "AdGuard/MobileFilter/sections/adservers.txt":  "0732f1308a9ea991fe3a1e8e60c6c3713e760c227fc1348e25069949b5cd6eab",
-                          "AdGuard/MobileFilter/sections/allowlist_web.txt":  "70861a6f15ac475566e02c5cf130e59b6c8bddcc16b66a6891a493fdb1289882",
-                          "AdGuard/CyrillicFilters/common-sections/adservers_firstparty.txt":  "28201cfd4151c2758292051cc133268d26edb2e3c0f2aec9fa51bf0415ce8e69",
-                          "AdGuard/CyrillicFilters/RussianFilter/sections/adservers_firstparty.txt":  "b9908d5b21275cf855f091a29d4d29559f8a5990d6a6ed6bbe27c985b52a810f",
-                          "AdGuard/CyrillicFilters/common-sections/adservers.txt":  "8dfe39824e758e41212e676785a2d4bd56e0bcfa450eb131dcdb3a7b0d2a0c09",
-                          "AdGuard/CyrillicFilters/common-sections/allowlist.txt":  "805bb3962bbec1a946fc3d11f0aa6478afd7789966475872c4eedc693a387d64",
-                          "AdGuard/CyrillicFilters/RussianFilter/sections/allowlist.txt":  "bb0785ebed83b43113a813ba359e3c03d1c105d0af6ba62f8b4bd2e63b48400c",
-                          "AdGuard/BaseFilter/sections/adservers_firstparty.txt":  "d352382d219c33fc6186bc4ba349b16b7a48d84964d853175d0b0ba1c24a2b82",
-                          "AdGuard/BaseFilter/sections/allowlist.txt":  "2d8a15f3754184a648a50f2bc3f77b40d0a6d1eca47d63e86c056fcac6c70e4d",
                           "fmz200/Shadowrocket/module/blockAds.srmodule":  "513e9c5a5d6199d12df9720d743422b1581bdca9473f18c352b1e8edd36bd07f",
+                          "AdGuard/MobileFilter/sections/allowlist_app.txt":  "f912485f64f462173d5ab5eb699cac397b88dbc3a65081f43faece4b0a73c6b6",
+                          "AdGuard/CyrillicFilters/RussianFilter/sections/allowlist.txt":  "bb0785ebed83b43113a813ba359e3c03d1c105d0af6ba62f8b4bd2e63b48400c",
+                          "MITM/Reddit-RU.module":  "c1bbfd23e32959abbfde94a7aefe1071aaec4726c40dd5f63d9b14c2ca280772",
+                          "AdGuard/CyrillicFilters/common-sections/allowlist.txt":  "805bb3962bbec1a946fc3d11f0aa6478afd7789966475872c4eedc693a387d64",
                           "AdGuard/BaseFilter/sections/adservers.txt":  "5e6cf4e528d434ce013cbfac8f52ab0f0250105c552ce4a8cd0fea8998746527",
-                          "AdGuard/MobileFilter/sections/allowlist_app.txt":  "f912485f64f462173d5ab5eb699cac397b88dbc3a65081f43faece4b0a73c6b6"
+                          "AdGuard/BaseFilter/sections/allowlist.txt":  "2d8a15f3754184a648a50f2bc3f77b40d0a6d1eca47d63e86c056fcac6c70e4d",
+                          "AdGuard/MobileFilter/sections/adservers.txt":  "0732f1308a9ea991fe3a1e8e60c6c3713e760c227fc1348e25069949b5cd6eab",
+                          "MITM/YouTube-RU.module":  "cbb13f84ae703b0956c2426b1ff0d86e05aeeebb76c815f3d60f891b679cbc60",
+                          "AdGuard/CyrillicFilters/common-sections/adservers.txt":  "8dfe39824e758e41212e676785a2d4bd56e0bcfa450eb131dcdb3a7b0d2a0c09",
+                          "MITM/TikTok-Web-RU.module":  "2eeef5314a7a6902137090678d18a2b8193c7948d065cdaf5bf08b80ca641445",
+                          "MITM/X-RU.module":  "4fd586483b9c7e5211d4b118e75a5049e93939460b19683ccb426ea599f61177",
+                          "AdGuard/CyrillicFilters/RussianFilter/sections/adservers_firstparty.txt":  "b9908d5b21275cf855f091a29d4d29559f8a5990d6a6ed6bbe27c985b52a810f",
+                          "AdGuard/CyrillicFilters/common-sections/adservers_firstparty.txt":  "28201cfd4151c2758292051cc133268d26edb2e3c0f2aec9fa51bf0415ce8e69",
+                          "AdGuard/BaseFilter/sections/adservers_firstparty.txt":  "d352382d219c33fc6186bc4ba349b16b7a48d84964d853175d0b0ba1c24a2b82",
+                          "AdGuard/MobileFilter/sections/allowlist_web.txt":  "70861a6f15ac475566e02c5cf130e59b6c8bddcc16b66a6891a493fdb1289882"
                       }
 }
