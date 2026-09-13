@@ -1,0 +1,9 @@
+#!name=BlockAds RU - Reddit
+#!desc=Реклама в поддерживаемых JSON-лентах Reddit. NSFW и возрастные настройки сохраняются. Нужен собственный сертификат Shadowrocket.
+#!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
+# SPDX-License-Identifier: GPL-3.0-only
+# Не включать одновременно с другим Reddit MITM-скриптом.
+[Script]
+RU-Reddit = type=http-response, pattern=^https:\/\/(?:gql(?:-fed)?\.reddit\.com\/?(?:\?[^#]*)?$|(?:(?:www|oauth)\.)?reddit\.com\/(?:r\/[^\/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/|\.json(?:\?|$))), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/bb26272c251a7eff82050412c219def9ac881abd/Russia/social-json.js
+[MITM]
+hostname = %APPEND% gql.reddit.com, gql-fed.reddit.com, oauth.reddit.com, www.reddit.com, reddit.com
