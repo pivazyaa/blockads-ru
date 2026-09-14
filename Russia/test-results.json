@@ -1,13 +1,22 @@
 {
   "runtime": "V8 code-mode harness",
-  "passed": 52,
+  "passed": 61,
   "failures": [],
   "tests": [
     "Reddit filters explicit ad posts and preserves NSFW",
     "Reddit null, cursors and comments survive",
     "Reddit listing preserves post fields",
     "X responses pass unchanged after the iPhone compatibility fix",
-    "TikTok only explicit isAd=true is removed",
+    "TikTok explicit isAd=true is removed",
+    "TikTok TT4B ad marker filters without requiring isAd",
+    "TikTok additional verified web feeds filter ads",
+    "TikTok existing web feeds stay supported",
+    "TikTok commerce permissions and unverified labels preserve ordinary videos",
+    "TikTok ad markers require a boolean on the item itself",
+    "TikTok ad-only pages preserve pagination and response metadata",
+    "TikTok search, detail, HTML, mutations and lookalike paths are not rewritten",
+    "TikTok unrelated arrays and unknown response schemas remain unchanged",
+    "TikTok only filters the root feed list, preserving nested metadata",
     "YouTube JSON preserves playback and account state",
     "YouTube feed removes explicit ad renderer only",
     "Unknown JSON schema passes byte-for-byte",
@@ -62,6 +71,17 @@
     "milliseconds": 19
   },
   "iphone_runtime_tested": false,
+  "regression_comparison": {
+    "baseline": "2026.09.14.3",
+    "new_tests_failed_on_baseline": [
+      "TikTok TT4B ad marker filters without requiring isAd",
+      "TikTok additional verified web feeds filter ads",
+      "TikTok ad markers require a boolean on the item itself",
+      "TikTok ad-only pages preserve pagination and response metadata",
+      "TikTok only filters the root feed list, preserving nested metadata"
+    ],
+    "synthetic": true
+  },
   "optimization_profile": {
     "fixture": "200 KB protobuf with 50000 alternating retained/ad fields",
     "before": {

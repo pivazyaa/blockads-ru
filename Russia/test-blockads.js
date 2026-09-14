@@ -48,9 +48,49 @@
       same(json(url, data), {});
     });
   });
-  test("TikTok only explicit isAd=true is removed", function () {
+  test("TikTok explicit isAd=true is removed", function () {
     var good = [{ id: "normal" }, { id: "false", isAd: false }, { id: "unknown", isAd: "true" }];
     same(JSON.parse(json(tik, { itemList: good.concat([{ id: "ad", isAd: true }]), cursor: "next", hasMore: true }).body), { itemList: good, cursor: "next", hasMore: true });
+  });
+  test("TikTok TT4B ad marker filters without requiring isAd", function () {
+    var good = { id: "ordinary", isAd: false, isTT4BAds: false };
+    same(JSON.parse(json(tik, { itemList: [good, { id: "tt4b", isTT4BAds: true }], cursor: "next", hasMore: true }).body), { itemList: [good], cursor: "next", hasMore: true });
+  });
+  test("TikTok additional verified web feeds filter ads", function () {
+    ["explore", "following", "music", "related", "topic"].forEach(function (feed) {
+      var data = { itemList: [{ id: "keep" }, { id: "ad", isAd: true }], cursor: "next", hasMore: true };
+      same(JSON.parse(json("https://www.tiktok.com/api/" + feed + "/item_list/?count=20", data).body), { itemList: [{ id: "keep" }], cursor: "next", hasMore: true });
+    });
+  });
+  test("TikTok existing web feeds stay supported", function () {
+    ["recommend", "post", "mix"].forEach(function (feed) {
+      same(JSON.parse(json("https://www.tiktok.com/api/" + feed + "/item_list/", { itemList: [{ isAd: true }, { id: "keep" }] }).body), { itemList: [{ id: "keep" }] });
+    });
+  });
+  test("TikTok commerce permissions and unverified labels preserve ordinary videos", function () {
+    var keep = [{ id: "spark-permission", adAuthorization: true }, { id: "commerce", isCommerce: true }, { id: "label", adLabelVersion: 2 }, { id: "unknown", commerceInfo: { brandedContentType: 1 } }, { id: "internal", ad_info: { id: "unknown" } }, { id: "shop", isECVideo: true }];
+    same(JSON.parse(json(tik, { itemList: keep.concat([{ isAd: true }]) }).body), { itemList: keep });
+  });
+  test("TikTok ad markers require a boolean on the item itself", function () {
+    var keep = [null, { id: "string", isTT4BAds: "true" }, { id: "numeric", isTT4BAds: 1 }, { id: "object", isTT4BAds: {} }, { id: "nested", author: { isTT4BAds: true } }, { id: "text", desc: "Paid partnership #ad sponsored" }];
+    same(JSON.parse(json(tik, { itemList: keep.concat([{ isTT4BAds: true }]) }).body), { itemList: keep });
+  });
+  test("TikTok ad-only pages preserve pagination and response metadata", function () {
+    same(JSON.parse(json(tik, { itemList: [{ isAd: true }, { isTT4BAds: true }], cursor: "18446744073709551615", hasMore: true, statusCode: 0, extra: { logid: "keep" } }).body), { itemList: [], cursor: "18446744073709551615", hasMore: true, statusCode: 0, extra: { logid: "keep" } });
+  });
+  test("TikTok search, detail, HTML, mutations and lookalike paths are not rewritten", function () {
+    ["https://www.tiktok.com/api/search/general/full/", "https://www.tiktok.com/api/item/detail/", "https://www.tiktok.com/explore", "https://www.tiktok.com/api/commit/item/digg/", "https://www.tiktok.com/api/explore/item_list/extra", "https://www.tiktok.com.evil/api/explore/item_list/"].forEach(function (url) {
+      same(json(url, { itemList: [{ isAd: true }, { isTT4BAds: true }] }), {});
+    });
+  });
+  test("TikTok unrelated arrays and unknown response schemas remain unchanged", function () {
+    same(json(tik, { items: [{ isTT4BAds: true }], itemList: { future: [{ isAd: true }] } }), {});
+  });
+  test("TikTok only filters the root feed list, preserving nested metadata", function () {
+    var metadata = { future: { itemList: [{ isAd: true }, { isTT4BAds: true }] } };
+    same(json(tik, metadata), {});
+    var out = json(tik, { itemList: [{ id: "keep", metadata: metadata }, { isAd: true }], extra: metadata });
+    same(JSON.parse(out.body), { itemList: [{ id: "keep", metadata: metadata }], extra: metadata });
   });
   test("YouTube JSON preserves playback and account state", function () {
     var data = { adPlacements: [1], adSlots: [2], playerAds: [3], playabilityStatus: { status: "OK" }, streamingData: { url: "keep" }, captions: { language: "ru" }, isPremium: false };

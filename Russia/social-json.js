@@ -35,7 +35,7 @@
     if (/^https:\/\/gql(?:-fed)?\.reddit\.com\/?(?:\?[^#]*)?$/.test(url)) return "reddit";
     if (/^https:\/\/oauth\.reddit\.com\/(?:r\/[^/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?(?:\.json)?(?:\?[^#]*)?$/.test(url)) return "reddit";
     if (/^https:\/\/(?:www\.)?reddit\.com\/(?:r\/[^/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?\.json(?:\?[^#]*)?$/.test(url)) return "reddit";
-    if (/^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$)/.test(url)) return "tiktok";
+    if (/^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix|explore|following|music|related|topic)\/item_list\/(?:\?|$)/.test(url)) return "tiktok";
     if (/^https:\/\/(?:(?:www|m|music)\.youtube\.com|youtubei(?:-att)?\.googleapis\.com)\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$)/.test(url)) return "youtube";
     return null;
   }
@@ -49,7 +49,7 @@
 
   function hasAdMarker(text, service) {
     if (service === "reddit") return /"(?:AdPost|AdMetadataCell)"|"adPayload"\s*:\s*\{|"(?:promoted|isSponsored)"\s*:\s*true|"commentsPageAds"\s*:\s*\[/.test(text);
-    if (service === "tiktok") return /"isAd"\s*:\s*true/.test(text);
+    if (service === "tiktok") return /"(?:isAd|isTT4BAds)"\s*:\s*true/.test(text);
     return /"(?:adPlacements|adSlots|playerAds|adSlotRenderer|adPlacementRenderer|displayAdRenderer|inFeedAdLayoutRenderer|promotedSparklesWebRenderer|promotedVideoRenderer|compactPromotedVideoRenderer)"\s*:/.test(text);
   }
 
@@ -81,6 +81,12 @@
     });
   }
 
+  function tiktokAd(item) {
+    // Explicit ad signals used by TikTok's web client. Permission to promote
+    // (adAuthorization), commerce labels and caption keywords are not ad flags.
+    return object(item) && (item.isAd === true || item.isTT4BAds === true);
+  }
+
   function visit(node, service, state, depth) {
     if (!node || typeof node !== "object") return;
     if (depth > 64) throw new Error("depth");
@@ -100,7 +106,7 @@
       if (Array.isArray(value)) {
         var filter = null;
         if (service === "reddit" && /^(edges|children)$/.test(key)) filter = redditAd;
-        if (service === "tiktok" && key === "itemList") filter = function (item) { return object(item) && item.isAd === true; };
+        if (service === "tiktok" && depth === 0 && key === "itemList") filter = tiktokAd;
         if (service === "youtube" && /^(contents|items)$/.test(key)) filter = youtubeAd;
         if (filter) {
           // Compact only the parsed private copy; no second full-size array.
