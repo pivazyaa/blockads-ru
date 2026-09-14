@@ -1,5 +1,5 @@
 #!name=BlockAds RU
-#!desc=2026.09.14.2: исправлена совместимость с X на iPhone. Встроены MITM YouTube, Reddit и TikTok Web; X работает без перехвата. Для HTTPS нужен собственный доверенный сертификат.
+#!desc=2026.09.14.3: точнее обработка Reddit, ограничен расход памяти YouTube, учтены исключения AdGuard. MITM встроен; X работает без перехвата. Для HTTPS нужен собственный доверенный сертификат.
 #!author=fmz200, AdGuard contributors; adaptation for pivazyaa
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
 #!date=2026-09-14
@@ -1050,7 +1050,6 @@ DOMAIN-SUFFIX,hyperadx.com,REJECT
 DOMAIN-SUFFIX,i.j2j.ru,REJECT
 DOMAIN-SUFFIX,i.singular.net,REJECT
 DOMAIN-SUFFIX,i.skimresources.com,REJECT
-DOMAIN-SUFFIX,i16-tb.isnssdk.com,REJECT
 DOMAIN-SUFFIX,i2ad.jp,REJECT
 DOMAIN-SUFFIX,iad.appboy.com,REJECT
 DOMAIN-SUFFIX,iads.unity3d.com,REJECT
@@ -1411,7 +1410,6 @@ DOMAIN-SUFFIX,pahtsx.tech,REJECT
 DOMAIN-SUFFIX,pahtuo.tech,REJECT
 DOMAIN-SUFFIX,pahtuz.tech,REJECT
 DOMAIN-SUFFIX,paintejuke.com,REJECT
-DOMAIN-SUFFIX,pangle.io,REJECT
 DOMAIN-SUFFIX,pangolin16.isnssdk.com,REJECT
 DOMAIN-SUFFIX,pangolin16.sgsnssdk.com,REJECT
 DOMAIN-SUFFIX,parrot-flow.com,REJECT
@@ -2041,10 +2039,10 @@ DOMAIN-SUFFIX,zzlocalsquared.com,REJECT
 DOMAIN-SUFFIX,zzyqkeniw.com,REJECT
 
 [Script]
-RU-Reddit = type=http-response, pattern=^https:\/\/(?:gql(?:-fed)?\.reddit\.com\/?(?:\?[^#]*)?$|(?:(?:www|oauth)\.)?reddit\.com\/(?:r\/[^\/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/|\.json(?:\?|$))), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/social-json.js
-RU-TikTok-Web = type=http-response, pattern=^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/social-json.js
-RU-YouTube-Player = type=http-response, pattern=^https:\/\/youtubei(?:-att)?\.googleapis\.com\/youtubei\/v1\/(?:player|get_watch)(?:\?|$), requires-body=true, binary-body-mode=true, max-size=2097152, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/youtube-player.js
-RU-YouTube-Web = type=http-response, pattern=^https:\/\/(?:www|m|music)\.youtube\.com\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/social-json.js
+RU-Reddit = type=http-response, pattern=^https:\/\/(?:gql(?:-fed)?\.reddit\.com\/?(?:\?[^#]*)?$|oauth\.reddit\.com\/(?:r\/[^\/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?(?:\.json)?(?:\?[^#]*)?$|(?:www\.)?reddit\.com\/(?:r\/[^\/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?\.json(?:\?[^#]*)?$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/social-json.js
+RU-TikTok-Web = type=http-response, pattern=^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/social-json.js
+RU-YouTube-Player = type=http-response, pattern=^https:\/\/youtubei(?:-att)?\.googleapis\.com\/youtubei\/v1\/(?:player|get_watch)(?:\?|$), requires-body=true, binary-body-mode=true, max-size=2097152, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/youtube-player.js
+RU-YouTube-Web = type=http-response, pattern=^https:\/\/(?:www|m|music)\.youtube\.com\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/social-json.js
 
 [MITM]
 hostname = %APPEND% gql.reddit.com, gql-fed.reddit.com, m.youtube.com, music.youtube.com, oauth.reddit.com, reddit.com, www.reddit.com, www.tiktok.com, www.youtube.com, youtubei.googleapis.com, youtubei-att.googleapis.com

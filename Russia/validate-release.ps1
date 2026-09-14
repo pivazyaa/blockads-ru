@@ -20,7 +20,8 @@ $keep = @(
   'youtubei.googleapis.com','rr1---sn-test.googlevideo.com','api16-normal-c-useast1a.tiktokv.com',
   'gql.reddit.com','x.com','oauth.reddit.com','gosuslugi.ru','api.sberbank.ru','ads.example.org',
   'api.x.com','twitter.com','api.twitter.com','abs.twimg.com','pbs.twimg.com','video.twimg.com','t.co',
-  'syndication.twitter.com','urls.api.twitter.com','ads-bidder-api.twitter.com','ads-twitter.com'
+  'syndication.twitter.com','urls.api.twitter.com','ads-bidder-api.twitter.com','ads-twitter.com',
+  'api16-access-sg.pangle.io','i16-tb.isnssdk.com'
 )
 $deny = @('banners.mobile.yandex.net','b13.penzainform.ru','iads.unity3d.com','applovin.com','iadsdk.apple.com','alt-ad.mail.ru')
 foreach ($hostName in $keep) { Check (!(Blocked $hostName)) ('unblocked '+$hostName) }
@@ -53,6 +54,14 @@ foreach ($file in Get-ChildItem -LiteralPath $root -Filter '*.module') {
       Check (!$regex.IsMatch('https://api.x.com/graphql/test/HomeTimeline')) ($file.Name+' excludes native X API')
       Check (!$regex.IsMatch('https://x.com/i/api/graphql/test/TweetDetail')) ($file.Name+' excludes X post responses')
       Check ($patternCases.ContainsKey($scriptId) -and $regex.IsMatch($patternCases[$scriptId])) ($file.Name+' '+$scriptId+' endpoint matches')
+      if ($scriptId -eq 'RU-Reddit') {
+        foreach ($url in @('https://oauth.reddit.com/hot?limit=25','https://oauth.reddit.com/r/test/new','https://oauth.reddit.com/hot.json?limit=25','https://www.reddit.com/r/test/hot.json','https://www.reddit.com/comments/abc/title/.json')) {
+          Check ($regex.IsMatch($url)) ($file.Name+' supported Reddit JSON '+$url)
+        }
+        foreach ($url in @('https://www.reddit.com/hot/','https://reddit.com/r/test/comments/abc/title/','https://oauth.reddit.com/api/comment','https://oauth.reddit.com/api/vote','https://oauth.reddit.com/hotness','https://www.reddit.com/hot.json.evil','https://oauth.reddit.com.evil/hot')) {
+          Check (!$regex.IsMatch($url)) ($file.Name+' excludes unrelated Reddit request '+$url)
+        }
+      }
     }
   }
 }
@@ -72,6 +81,7 @@ foreach ($url in $patternCases.Values) { Check ($combinedHosts -contains ([uri]$
 Check (!($combinedHosts | Where-Object {$_ -match '(^|\.)(apple\.com|icloud\.com|tbank\.ru|tinkoff\.ru|telegram\.org|googlevideo\.com|x\.com|twitter\.com|twimg\.com|t\.co)$'})) 'combined MITM excludes critical shared services and X'
 $definition = [IO.File]::ReadAllText(($root+'\mitm-config.json')) | ConvertFrom-Json
 Check ($definition.script_ref -match '^[a-f0-9]{40}$') 'definition pins scripts to a commit'
+Check ($combined.Contains('#!desc='+$definition.release+':')) 'module displays the configured release version'
 foreach ($entry in $definition.scripts) {
   Check ($combinedNames -contains $entry.id) ('definition included '+$entry.id)
   Check ($combined.Contains('/'+$definition.script_ref+'/Russia/'+$entry.file)) ('definition reference included '+$entry.file)

@@ -6,13 +6,13 @@
     },
     {
         "file":  "blockAds-RU.module",
-        "bytes":  80054,
-        "sha256":  "eb139b4fa1ad0610367ceeeb7f5c901e0b8aad79035c64824779a18ac66029fe"
+        "bytes":  80135,
+        "sha256":  "720ae38b15baf68226607c36c062fc1df2fb41a8b8d6506f9a8f236324082fbe"
     },
     {
         "file":  "build-rules.ps1",
-        "bytes":  13493,
-        "sha256":  "0a4756b3a971796cb8a67500412d560e81a30e9902c5c30dcc32f31e6ba5d611"
+        "bytes":  15117,
+        "sha256":  "758601b7e68b84bbd4f432d457242e446a4c8d8907ae63f72b45624744c345cc"
     },
     {
         "file":  "LICENSE",
@@ -21,53 +21,58 @@
     },
     {
         "file":  "mitm-config.json",
-        "bytes":  1846,
-        "sha256":  "d6cd9744d953a1a6e9cd484f5d84cd0739050385376108d5dd5f3dc54407de6e"
+        "bytes":  1968,
+        "sha256":  "04fb92548e14fc0fcf6e19094212afab10d2eab5c4db48a32d08035b3c989699"
     },
     {
         "file":  "README.md",
-        "bytes":  19398,
-        "sha256":  "4467f5c365c94aadeb27045be5e799c535ea0e654071ca67547d76cde4e203de"
+        "bytes":  20734,
+        "sha256":  "a8e3278d0908d61b4495b78f186f6d1e3d1e2a1964835355c8da361fce142cf2"
     },
     {
         "file":  "Reddit-RU.module",
-        "bytes":  817,
-        "sha256":  "df1e4b7d5fd1074e8af8553332cadeb18498cf95060e3eafa58f146055c3e035"
+        "bytes":  930,
+        "sha256":  "8e42121c4a6131bccf345fd6d926ba4c1c5bc72c248ace58c6ea66a909fc6670"
     },
     {
         "file":  "release-checks.json",
         "bytes":  195,
-        "sha256":  "53943892f5b7d44fc95bede03565dc8250b4234b8beee93bee20b584d0ab1dd6"
+        "sha256":  "75dec759d83b901a51033ccc369f2d4fec9114be82374de9b61c31f459fe22c2"
     },
     {
         "file":  "social-json.js",
-        "bytes":  5694,
-        "sha256":  "d7c001343e7f26de17aee306c2f32b09473ac04e539ec48ba6c9453201c418db"
+        "bytes":  5857,
+        "sha256":  "6b4411a6f89737038f08c7270bd90d4fa12cbbd520ab91545896b3da4c97fe35"
     },
     {
         "file":  "sources.lock.json",
-        "bytes":  29394,
-        "sha256":  "0e126ad8c45843e9bfb7361534fcf67f56f9f8dfabbe03b607234d2908b1f907"
+        "bytes":  30191,
+        "sha256":  "fa470d4d0a1e5c537038c762bc52974235a1e6a28aaae6527d4c5b0b13338952"
     },
     {
         "file":  "test-blockads.js",
-        "bytes":  14091,
-        "sha256":  "12368e0bc2490d9fe65c04fe2700570e04a59933ebbe81f64fe760b5017f7158"
+        "bytes":  16747,
+        "sha256":  "03c0e589ff3b6e2b2ff6b732bed938d1637ed054cbbcd360ef408aed8ee1d5ec"
     },
     {
         "file":  "test-results.json",
-        "bytes":  3753,
-        "sha256":  "a6a07ce5240c696a5b3094e79ff69e4a075baacd981920bd59cbd675019801b9"
+        "bytes":  3534,
+        "sha256":  "128a1c834d01d62acea01c498e60ad62fd3a654d5aa0c7488fee9dbfb1428d1d"
+    },
+    {
+        "file":  "test-source-exceptions.ps1",
+        "bytes":  2987,
+        "sha256":  "b498e7e155a29d045dd2b86e9097faa80b16502250e90f195361470ebf1ef0c5"
     },
     {
         "file":  "TikTok-Web-RU.module",
         "bytes":  671,
-        "sha256":  "28282e34c0c0167c974c6b7aaffee26aca2dd2fe1ff84ce20a3dc054f26ebd3b"
+        "sha256":  "ba83830dff9c4f674f72eee1eea06ac2e5624fc684e752bc5d2159233a0ae06f"
     },
     {
         "file":  "validate-release.ps1",
-        "bytes":  7002,
-        "sha256":  "f68164926b44ce1c774f8f363c62ca3448679892b8eaf7d11827a00a1971d4b7"
+        "bytes":  7950,
+        "sha256":  "87f10e3a0863fd2068fc324f3e0bcbd24677e8fb8b5a3a0366da87e314b8ce8e"
     },
     {
         "file":  "X-RU.module",
@@ -76,12 +81,12 @@
     },
     {
         "file":  "youtube-player.js",
-        "bytes":  5426,
-        "sha256":  "3db921607800cd124324fd1bf407ddcf7fe28e474fca141fcc16aaf6b7330de1"
+        "bytes":  5740,
+        "sha256":  "409aaf5079e6b76fca0717db32d40d593c7f2da7c366873dde82b32efa1db22a"
     },
     {
         "file":  "YouTube-RU.module",
         "bytes":  1130,
-        "sha256":  "9da8cc46d738bc6d70ed59d3070d129f35f9b5c0981056a028172277185f8468"
+        "sha256":  "f3738729bfe3e2dc5fdcc4e017715c0755ba2dbbdd2f6028a48a1e2bfa7ca54c"
     }
 ]

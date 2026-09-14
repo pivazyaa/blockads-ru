@@ -3,7 +3,7 @@
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
 # SPDX-License-Identifier: GPL-3.0-only
 [Script]
-RU-YouTube-Player = type=http-response, pattern=^https:\/\/youtubei(?:-att)?\.googleapis\.com\/youtubei\/v1\/(?:player|get_watch)(?:\?|$), requires-body=true, binary-body-mode=true, max-size=2097152, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/youtube-player.js
-RU-YouTube-Web = type=http-response, pattern=^https:\/\/(?:www|m|music)\.youtube\.com\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/social-json.js
+RU-YouTube-Player = type=http-response, pattern=^https:\/\/youtubei(?:-att)?\.googleapis\.com\/youtubei\/v1\/(?:player|get_watch)(?:\?|$), requires-body=true, binary-body-mode=true, max-size=2097152, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/youtube-player.js
+RU-YouTube-Web = type=http-response, pattern=^https:\/\/(?:www|m|music)\.youtube\.com\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/social-json.js
 [MITM]
 hostname = %APPEND% m.youtube.com, music.youtube.com, www.youtube.com, youtubei.googleapis.com, youtubei-att.googleapis.com

@@ -5,6 +5,7 @@ New-Item -ItemType Directory -Path $out -Force | Out-Null
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $mitmDefinition = [IO.File]::ReadAllText(($work+'\mitm-config.json')) | ConvertFrom-Json
 if ($mitmDefinition.version -ne 1 -or $mitmDefinition.script_ref -notmatch '^[a-f0-9]{40}$') { throw 'Invalid MITM definition or script reference' }
+if ($mitmDefinition.release -notmatch '^\d{4}\.\d{2}\.\d{2}\.\d+$') { throw 'Invalid release identifier' }
 $fmz = [pscustomobject]@{ref='3ca7487b4e4b86d9af76e50df72c62eacfbb659e'}
 $ag = [pscustomobject]@{ref='ebd6f4bc46f816cf75a41c9764dd35bed4a65b00'}
 $sources = @(
@@ -37,9 +38,12 @@ $candidates = @{}
 $excluded = @{}
 $exceptionHosts = New-Object 'System.Collections.Generic.HashSet[string]'
 $exceptionAncestors = New-Object 'System.Collections.Generic.HashSet[string]'
+$wildcardExceptionHosts = New-Object 'System.Collections.Generic.HashSet[string]'
 foreach ($source in $exceptions) {
   foreach ($line in [IO.File]::ReadAllLines((Join-Path ($work+'\sources\adguard') $source))) {
-    if ($line -match '^@@\|\|([a-z0-9.-]+)(\^|/)') {
+    if ($line -match '^@@\|\|([a-z0-9.*-]*\*[a-z0-9.*-]*)\^') {
+      [void]$wildcardExceptionHosts.Add($Matches[1])
+    } elseif ($line -match '^@@\|\|([a-z0-9.-]+)(\^|/)') {
       $exceptionHost = $Matches[1]
       # A path exception on a parent site does not establish a subdomain-wide dependency.
       if ($Matches[2] -eq '^') { [void]$exceptionHosts.Add($exceptionHost) }
@@ -93,6 +97,18 @@ $critical = @(
 function Test-Under([string]$child, [string]$parent) {
   return $child -eq $parent -or $child.EndsWith('.'+$parent, [StringComparison]::OrdinalIgnoreCase)
 }
+function Test-WildcardException([string]$hostName, [bool]$isSuffix, [string]$exceptionHost) {
+  $pattern = '(?:^|\.)'+[regex]::Escape($exceptionHost).Replace('\*','.*')+'$'
+  if ($hostName -match $pattern) { return $true }
+  if (!$isSuffix) { return $false }
+  # A suffix block also covers possible descendants matched by the exception.
+  # The literal tail keeps i*-tb.isnssdk.com from exempting dm.isnssdk.com.
+  $tail = $exceptionHost.Substring($exceptionHost.LastIndexOf('*')+1)
+  # Unanchored patterns such as optout*.* do not identify a parent service.
+  # Apply those to concrete hosts only, rather than exempting every domain.
+  if ($tail.TrimStart('.').Split('.').Length -lt 2) { return $false }
+  return $hostName.EndsWith($tail, [StringComparison]::OrdinalIgnoreCase) -or $tail.EndsWith('.'+$hostName, [StringComparison]::OrdinalIgnoreCase)
+}
 foreach ($key in @($candidates.Keys)) {
   $parts = $key.Split(','); $hostName = $parts[1]; $reason = $null
   if ($protected -contains $hostName -or $hostName -match '(safebrowsing|(^|\.)ocsp\.|(^|\.)crl\.)') { $reason = 'shared-or-security-service' }
@@ -107,6 +123,9 @@ foreach ($key in @($candidates.Keys)) {
   $labels = $hostName.Split('.')
   for ($i=0; $i -lt $labels.Length-1; $i++) {
     if ($exceptionHosts.Contains(($labels[$i..($labels.Length-1)] -join '.'))) { $reason = 'upstream-context-exception'; break }
+  }
+  foreach ($exceptionHost in $wildcardExceptionHosts) {
+    if (Test-WildcardException $hostName ($parts[0] -eq 'DOMAIN-SUFFIX') $exceptionHost) { $reason = 'upstream-wildcard-context-exception'; break }
   }
   if ($reason) { $excluded[$key] = $reason; $candidates.Remove($key) }
 }
@@ -152,10 +171,10 @@ foreach ($entry in $mitmDefinition.scripts) {
 if ($scriptLines.Count -ne 4 -or $mitmHosts.Count -ne 11) { throw 'Incomplete combined MITM configuration' }
 $header = @'
 #!name=BlockAds RU
-#!desc=2026.09.14.2: исправлена совместимость с X на iPhone. Встроены MITM YouTube, Reddit и TikTok Web; X работает без перехвата. Для HTTPS нужен собственный доверенный сертификат.
+#!desc=__RELEASE__: точнее обработка Reddit, ограничен расход памяти YouTube, учтены исключения AdGuard. MITM встроен; X работает без перехвата. Для HTTPS нужен собственный доверенный сертификат.
 #!author=fmz200, AdGuard contributors; adaptation for pivazyaa
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
-#!date=2026-09-14
+#!date=__DATE__
 # SPDX-License-Identifier: GPL-3.0-only
 # Избирательный форк fmz200 с правилами AdGuard. См. README.md и sources.lock.json.
 # Не импортируйте исходный blockAds одновременно с этой версией.
@@ -165,6 +184,7 @@ $header = @'
 
 [Rule]
 '@
+$header = $header.Replace('__RELEASE__', $mitmDefinition.release).Replace('__DATE__', $mitmDefinition.release.Substring(0,10).Replace('.','-'))
 $combined = $header+"`n"+($rules -join "`n")+"`n`n[Script]`n"+($scriptLines -join "`n")+"`n`n[MITM]`n"
 $combined += 'hostname = %APPEND% '+(@($mitmHosts | Sort-Object) -join ', ')+"`n"
 [IO.File]::WriteAllText(($out+'\blockAds-RU.module'), $combined, $utf8)
@@ -189,6 +209,7 @@ $lock = [ordered]@{
   rule_count = $rules.Count; bytes = (Get-Item ($out+'\blockAds-RU.module')).Length
   source_files = $sources; exception_files = $exceptions; fmz_reviewed_domains = $reviewedFmz
   excluded_rules = $excluded; runtime_remote_rule_lists = @()
+  wildcard_exception_hosts = @($wildcardExceptionHosts | Sort-Object)
   mitm_definition_file = 'mitm-config.json'; script_ref = $mitmDefinition.script_ref; release = $mitmDefinition.release
   compatibility_passthrough_roots = $mitmDefinition.passthrough_roots
   script_entries = $scriptLines.Count; mitm_hostnames = @($mitmHosts | Sort-Object)

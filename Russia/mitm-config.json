@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "release": "2026.09.14.2",
-  "script_ref": "39edd9f35c61e32e5aad507805bd02530ea2f9e5",
+  "release": "2026.09.14.3",
+  "script_ref": "70cda848e0d89e48e0fdd17ebd7fcb707db08f30",
   "passthrough_roots": [
     "x.com",
     "twitter.com",
@@ -13,7 +13,7 @@
     {
       "id": "RU-Reddit",
       "module": "Reddit-RU.module",
-      "pattern": "^https:\\/\\/(?:gql(?:-fed)?\\.reddit\\.com\\/?(?:\\?[^#]*)?$|(?:(?:www|oauth)\\.)?reddit\\.com\\/(?:r\\/[^\\/?#]+\\/)?(?:hot|new|top|best|rising|comments)(?:\\/|\\.json(?:\\?|$)))",
+      "pattern": "^https:\\/\\/(?:gql(?:-fed)?\\.reddit\\.com\\/?(?:\\?[^#]*)?$|oauth\\.reddit\\.com\\/(?:r\\/[^\\/?#]+\\/)?(?:hot|new|top|best|rising|comments)(?:\\/[^?#]*)?(?:\\.json)?(?:\\?[^#]*)?$|(?:www\\.)?reddit\\.com\\/(?:r\\/[^\\/?#]+\\/)?(?:hot|new|top|best|rising|comments)(?:\\/[^?#]*)?\\.json(?:\\?[^#]*)?$)",
       "file": "social-json.js",
       "max_size": 1048576,
       "binary": false,

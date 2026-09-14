@@ -1,9 +1,9 @@
 {
-    "generated_utc":  "2026-09-14T06:26:52Z",
+    "generated_utc":  "2026-09-14T11:41:58Z",
     "fmz200_ref":  "3ca7487b4e4b86d9af76e50df72c62eacfbb659e",
     "adguard_ref":  "ebd6f4bc46f816cf75a41c9764dd35bed4a65b00",
-    "rule_count":  2028,
-    "bytes":  80054,
+    "rule_count":  2026,
+    "bytes":  80135,
     "source_files":  [
                          "BaseFilter/sections/adservers.txt",
                          "BaseFilter/sections/adservers_firstparty.txt",
@@ -50,6 +50,7 @@
                            "DOMAIN-SUFFIX,mtrcss.com":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,playwire.com":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d3dpet1g0ty5ed.cloudfront.net":  "upstream-context-exception",
+                           "DOMAIN-SUFFIX,pangle.io":  "upstream-wildcard-context-exception",
                            "DOMAIN-SUFFIX,d10fhz7gnk5369.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d28g1fhp6rn9w3.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d3vw74hiy9xqtm.cloudfront.net":  "upstream-context-exception",
@@ -215,6 +216,7 @@
                            "DOMAIN-SUFFIX,dnn4px252i5wx.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d15fkr9rkey1dd.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d3fqhkmofpujs3.cloudfront.net":  "upstream-context-exception",
+                           "DOMAIN-SUFFIX,d2dzy45qo641nc.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d2trpg4l6gqit0.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d1qtf1avwa1wvl.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,bannersnack.com":  "upstream-context-exception",
@@ -225,7 +227,7 @@
                            "DOMAIN-SUFFIX,d6swopgiplmy0.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d37s9vd5t6mov7.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d1tru86qrby720.cloudfront.net":  "upstream-context-exception",
-                           "DOMAIN-SUFFIX,d2dzy45qo641nc.cloudfront.net":  "upstream-context-exception",
+                           "DOMAIN-SUFFIX,i16-tb.isnssdk.com":  "upstream-wildcard-context-exception",
                            "DOMAIN-SUFFIX,dk45agakx3yfl.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d31nb97nd8ha11.cloudfront.net":  "upstream-context-exception",
                            "DOMAIN-SUFFIX,d1b0fk9ns6n0w9.cloudfront.net":  "upstream-context-exception",
@@ -283,9 +285,20 @@
     "runtime_remote_rule_lists":  [
 
                                   ],
+    "wildcard_exception_hosts":  [
+                                     "admin*.planeta.ru",
+                                     "ads.vk.*",
+                                     "api*-access-sg.pangle.io",
+                                     "b24-*.bitrix24.ru",
+                                     "cdn*.anyclip.com",
+                                     "i*.imagetwist.com",
+                                     "i*-tb.isnssdk.com",
+                                     "optout*.*",
+                                     "sf*-*cdn-tos.pstatp.com"
+                                 ],
     "mitm_definition_file":  "mitm-config.json",
-    "script_ref":  "39edd9f35c61e32e5aad507805bd02530ea2f9e5",
-    "release":  "2026.09.14.2",
+    "script_ref":  "70cda848e0d89e48e0fdd17ebd7fcb707db08f30",
+    "release":  "2026.09.14.3",
     "compatibility_passthrough_roots":  [
                                             "x.com",
                                             "twitter.com",
@@ -317,7 +330,7 @@
                           "AdGuard/MobileFilter/sections/adservers.txt":  "0732f1308a9ea991fe3a1e8e60c6c3713e760c227fc1348e25069949b5cd6eab",
                           "AdGuard/CyrillicFilters/common-sections/adservers.txt":  "8dfe39824e758e41212e676785a2d4bd56e0bcfa450eb131dcdb3a7b0d2a0c09",
                           "AdGuard/CyrillicFilters/RussianFilter/sections/adservers_firstparty.txt":  "b9908d5b21275cf855f091a29d4d29559f8a5990d6a6ed6bbe27c985b52a810f",
-                          "BlockAds/mitm-config.json":  "d6cd9744d953a1a6e9cd484f5d84cd0739050385376108d5dd5f3dc54407de6e",
+                          "BlockAds/mitm-config.json":  "04fb92548e14fc0fcf6e19094212afab10d2eab5c4db48a32d08035b3c989699",
                           "AdGuard/CyrillicFilters/common-sections/adservers_firstparty.txt":  "28201cfd4151c2758292051cc133268d26edb2e3c0f2aec9fa51bf0415ce8e69",
                           "AdGuard/BaseFilter/sections/adservers_firstparty.txt":  "d352382d219c33fc6186bc4ba349b16b7a48d84964d853175d0b0ba1c24a2b82",
                           "AdGuard/MobileFilter/sections/allowlist_web.txt":  "70861a6f15ac475566e02c5cf130e59b6c8bddcc16b66a6891a493fdb1289882"
