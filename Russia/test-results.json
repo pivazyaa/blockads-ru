@@ -1,12 +1,12 @@
 {
   "runtime": "V8 code-mode harness",
-  "passed": 32,
+  "passed": 44,
   "failures": [],
   "tests": [
     "Reddit filters explicit ad posts and preserves NSFW",
     "Reddit null, cursors and comments survive",
     "Reddit listing preserves post fields",
-    "X removes promoted entries, preserving tweets and cursors",
+    "X responses pass unchanged after the iPhone compatibility fix",
     "TikTok only explicit isAd=true is removed",
     "YouTube JSON preserves playback and account state",
     "YouTube feed removes explicit ad renderer only",
@@ -21,6 +21,13 @@
     "Large JSON is passed through",
     "Deep JSON aborts all changes",
     "Unsafe integer IDs abort all changes",
+    "Partial GraphQL errors preserve the original response",
+    "Flat scalar arrays count towards the work limit",
+    "Long ad-candidate arrays cannot evade the work limit",
+    "Large cell arrays count towards the work limit",
+    "NDJSON is not rewritten as a single JSON document",
+    "JSON media type suffix and charset remain supported",
+    "Ad-free response skips JSON parsing and is not reserialized",
     "Protobuf removes fields 7 and 68, preserves all other bytes",
     "Protobuf same field numbers with other wire types survive",
     "Protobuf nested field 7 in unknown message survives",
@@ -34,12 +41,81 @@
     "Protobuf JSON content type passes unchanged",
     "Protobuf large body passes unchanged",
     "Protobuf non-player endpoint passes unchanged",
+    "Binary body field used by compatible client adapters is supported",
+    "Binary views preserve byte offset and byte length",
+    "Invalid binary arrays are not silently truncated to bytes",
+    "Numeric binary input never becomes an allocation size",
+    "Unchanged protobuf avoids one temporary view per field",
     "Scripts contain no network, persistent state or logging APIs"
   ],
   "benchmark": {
     "fixture": "100 posts, 10 explicit Reddit ads",
     "iterations": 100,
-    "milliseconds": 28
+    "milliseconds": 21
   },
-  "iphone_runtime_tested": false
+  "iphone_runtime_tested": false,
+  "comparison_benchmark": {
+    "runtime": "V8 code-mode harness; not iPhone JSC",
+    "iterations_per_sample": 100,
+    "samples": 5,
+    "workloads": [
+      {
+        "name": "json_100_posts_no_ads",
+        "before_ms": [
+          10,
+          7,
+          7,
+          8,
+          8
+        ],
+        "after_ms": [
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "before_median_ms": 8,
+        "after_median_ms": 0
+      },
+      {
+        "name": "json_100_posts_10_ads",
+        "before_ms": [
+          12,
+          10,
+          8,
+          8,
+          10
+        ],
+        "after_ms": [
+          17,
+          15,
+          13,
+          13,
+          13
+        ],
+        "before_median_ms": 10,
+        "after_median_ms": 13
+      },
+      {
+        "name": "protobuf_10000_fields_no_ads",
+        "before_ms": [
+          64,
+          55,
+          50,
+          44,
+          45
+        ],
+        "after_ms": [
+          6,
+          8,
+          7,
+          8,
+          9
+        ],
+        "before_median_ms": 50,
+        "after_median_ms": 8
+      }
+    ]
+  }
 }

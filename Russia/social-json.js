@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * BlockAds RU, 2026-09-13. Reddit markers adapted from fmz200/xream.
+ * BlockAds RU, 2026-09-14. Reddit markers adapted from fmz200/xream.
  * No requests, storage, cookie access, logging, age-rating or subscription changes.
  */
 (function () {
@@ -18,11 +18,15 @@
     if (!text || text.length > 1048576) return {};
     var headers = $response.headers || {};
     for (var hk in headers) {
-      if (hk.toLowerCase() === "content-type" && !/json/i.test(String(headers[hk]))) return {};
+      if (hk.toLowerCase() === "content-type" && !/^(?:application|text)\/(?:[a-z0-9.-]+\+)?json(?:\s*;|$)/i.test(String(headers[hk]))) return {};
     }
+    // Most feed responses contain no ad marker. Avoid parsing and walking those.
+    if (!hasAdMarker(text, service)) return {};
     var data = JSON.parse(text);
     if (!data || typeof data !== "object") return {};
-    var state = { changed: false, nodes: 0, start: Date.now() };
+    // Partial GraphQL errors are application state, not an ad-filtering target.
+    if (Array.isArray(data.errors) && data.errors.length) return {};
+    var state = { changed: false, work: 0, start: Date.now() };
     visit(data, service, state, 0);
     return state.changed ? { body: JSON.stringify(data) } : {};
   }
@@ -30,33 +34,41 @@
   function classify(url) {
     if (/^https:\/\/gql(?:-fed)?\.reddit\.com\/?(?:\?[^#]*)?$/.test(url)) return "reddit";
     if (/^https:\/\/(?:www\.|oauth\.)?reddit\.com\/(?:r\/[^/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/|\.json(?:\?|$))/.test(url)) return "reddit";
-    if (/^https:\/\/(?:api\.)?(?:x|twitter)\.com\/(?:i\/api\/)?graphql\/[^/?#]+\/(?:HomeTimeline|HomeLatestTimeline|TweetDetail|SearchTimeline|UserTweets|UserTweetsAndReplies)(?:\?|$)/.test(url)) return "x";
     if (/^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$)/.test(url)) return "tiktok";
     if (/^https:\/\/(?:(?:www|m|music)\.youtube\.com|youtubei(?:-att)?\.googleapis\.com)\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$)/.test(url)) return "youtube";
     return null;
   }
 
   function object(x) { return x !== null && typeof x === "object" && !Array.isArray(x); }
-  function populated(x) { return object(x) && Object.keys(x).length !== 0; }
+  function populated(x) {
+    if (!object(x)) return false;
+    for (var k in x) if (Object.prototype.hasOwnProperty.call(x, k)) return true;
+    return false;
+  }
 
-  function redditAd(item) {
+  function hasAdMarker(text, service) {
+    if (service === "reddit") return /"(?:AdPost|AdMetadataCell)"|"adPayload"\s*:\s*\{|"(?:promoted|isSponsored)"\s*:\s*true|"commentsPageAds"\s*:\s*\[/.test(text);
+    if (service === "tiktok") return /"isAd"\s*:\s*true/.test(text);
+    return /"(?:adPlacements|adSlots|playerAds|adSlotRenderer|adPlacementRenderer|displayAdRenderer|inFeedAdLayoutRenderer|promotedSparklesWebRenderer|promotedVideoRenderer|compactPromotedVideoRenderer)"\s*:/.test(text);
+  }
+
+  function spend(state) {
+    if (++state.work > 20000 || (state.work % 256 === 0 && Date.now() - state.start > 80)) throw new Error("budget");
+  }
+
+  function redditAd(item, state) {
     if (!object(item)) return false;
     var node = item.node || item.data || item;
     if (!object(node)) return false;
     if (node.__typename === "AdPost" || node.promoted === true || node.isSponsored === true) return true;
     if (populated(node.adPayload)) return true;
-    return Array.isArray(node.cells) && node.cells.some(function (c) { return c && c.__typename === "AdMetadataCell"; });
-  }
-
-  function xAd(item) {
-    if (!object(item)) return false;
-    if (typeof item.entryId === "string" && /^promoted-/.test(item.entryId)) return true;
-    var content = item.content || item;
-    var cell = content.itemContent || (content.item && content.item.itemContent) || item.itemContent;
-    if (!object(cell)) return false;
-    if (populated(cell.promotedMetadata)) return true;
-    var tweet = cell.tweet_results && cell.tweet_results.result;
-    return object(tweet) && populated(tweet.promotedMetadata);
+    if (Array.isArray(node.cells)) {
+      for (var i = 0; i < node.cells.length; i++) {
+        spend(state);
+        if (node.cells[i] && node.cells[i].__typename === "AdMetadataCell") return true;
+      }
+    }
+    return false;
   }
 
   function youtubeAd(item) {
@@ -70,10 +82,13 @@
 
   function visit(node, service, state, depth) {
     if (!node || typeof node !== "object") return;
-    if (++state.nodes > 20000 || depth > 64 || (state.nodes % 256 === 0 && Date.now() - state.start > 80)) throw new Error("budget");
-    var keys = Object.keys(node);
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i], value = node[key];
+    if (depth > 64) throw new Error("depth");
+    spend(state);
+    // Count scalar leaves too; a large flat array used to evade the work limit.
+    for (var key in node) {
+      if (!Object.prototype.hasOwnProperty.call(node, key)) continue;
+      spend(state);
+      var value = node[key];
       if (typeof value === "number" && (!isFinite(value) || (Math.floor(value) === value && Math.abs(value) > 9007199254740991))) throw new Error("unsafe integer");
       if (service === "youtube" && /^(adPlacements|adSlots|playerAds)$/.test(key) && Array.isArray(value) && value.length) {
         node[key] = []; state.changed = true; continue;
@@ -84,12 +99,16 @@
       if (Array.isArray(value)) {
         var filter = null;
         if (service === "reddit" && /^(edges|children)$/.test(key)) filter = redditAd;
-        if (service === "x" && /^(entries|items)$/.test(key)) filter = xAd;
         if (service === "tiktok" && key === "itemList") filter = function (item) { return object(item) && item.isAd === true; };
         if (service === "youtube" && /^(contents|items)$/.test(key)) filter = youtubeAd;
         if (filter) {
-          var clean = value.filter(function (item) { return !filter(item); });
-          if (clean.length !== value.length) { node[key] = clean; value = clean; state.changed = true; }
+          // Compact only the parsed private copy; no second full-size array.
+          var write = 0, length = value.length;
+          for (var read = 0; read < length; read++) {
+            spend(state);
+            if (!filter(value[read], state)) value[write++] = value[read];
+          }
+          if (write !== length) { value.length = write; state.changed = true; }
         }
       }
       visit(value, service, state, depth + 1);

@@ -40,11 +40,13 @@
     var out = json("https://www.reddit.com/r/test/hot.json", { data: { after: "cursor", children: [good, { data: { promoted: true } }] } });
     same(JSON.parse(out.body).data, { after: "cursor", children: [good] });
   });
-  test("X removes promoted entries, preserving tweets and cursors", function () {
+  test("X responses pass unchanged after the iPhone compatibility fix", function () {
     var good = { entryId: "tweet-1", content: { itemContent: { text: "promotedMetadata is a field" } } };
     var cursor = { entryId: "cursor-bottom", content: { value: "cursor" } };
     var data = { data: { timeline: { instructions: [{ entries: [good, cursor, { entryId: "promoted-tweet-2" }, { content: { itemContent: { promotedMetadata: { advertiser: "test" } } } }] }] } } };
-    same(JSON.parse(json(x, data).body).data.timeline.instructions[0].entries, [good, cursor]);
+    [x, "https://api.x.com/graphql/test/HomeTimeline", "https://api.twitter.com/graphql/test/TweetDetail", "https://twitter.com/i/api/graphql/test/SearchTimeline"].forEach(function (url) {
+      same(json(url, data), {});
+    });
   });
   test("TikTok only explicit isAd=true is removed", function () {
     var good = [{ id: "normal" }, { id: "false", isAd: false }, { id: "unknown", isAd: "true" }];
@@ -70,6 +72,30 @@
   test("Large JSON is passed through", function () { same(run("social", reddit, { body: " ".repeat(1048577) }), {}); });
   test("Deep JSON aborts all changes", function () { var v = { data: { children: { commentsPageAds: [1] } } }, p = v; for (var i = 0; i < 70; i++) { p.next = {}; p = p.next; } same(json(reddit, v), {}); });
   test("Unsafe integer IDs abort all changes", function () { same(run("social", reddit, { body: '{"data":{"children":{"commentsPageAds":[1]}},"id":9223372036854775807}' }), {}); });
+  test("Partial GraphQL errors preserve the original response", function () {
+    same(json(reddit, { errors: [{ message: "partial data", path: ["feed"] }], data: { feed: { edges: [{ node: { __typename: "AdPost" } }] } } }), {});
+  });
+  test("Flat scalar arrays count towards the work limit", function () {
+    same(json(reddit, { commentsPageAds: [1], values: new Array(21000).fill(0) }), {});
+  });
+  test("Long ad-candidate arrays cannot evade the work limit", function () {
+    same(json(reddit, { commentsPageAds: [1], edges: new Array(21000).fill(null) }), {});
+  });
+  test("Large cell arrays count towards the work limit", function () {
+    same(json(reddit, { commentsPageAds: [1], edges: [{ node: { cells: new Array(21000).fill(null) } }] }), {});
+  });
+  test("NDJSON is not rewritten as a single JSON document", function () {
+    same(json(reddit, { commentsPageAds: [1] }, { "Content-Type": "application/x-ndjson" }), {});
+  });
+  test("JSON media type suffix and charset remain supported", function () {
+    same(JSON.parse(json(reddit, { commentsPageAds: [1] }, { "content-type": "application/graphql-response+json; charset=utf-8" }).body), { commentsPageAds: [] });
+  });
+  test("Ad-free response skips JSON parsing and is not reserialized", function () {
+    var parsed = 0, fakeJSON = { parse: function () { parsed++; throw new Error("unexpected parse"); }, stringify: JSON.stringify };
+    var reply, body = '{ "data" : { "post" : "normal content" } }';
+    new Function("$request", "$response", "$done", "JSON", sources.social)({ url: reddit }, { status: 200, body: body }, function (v) { reply = v; }, fakeJSON);
+    same(reply, {}); assert(parsed === 0, "ad-free data was parsed");
+  });
   function vi(n) { var a = []; do { var b = n % 128; n = Math.floor(n / 128); a.push(b + (n ? 128 : 0)); } while (n); return a; }
   function ld(field, data) { return vi(field * 8 + 2).concat(vi(data.length), data); }
   function binary(data, url, ct) { return run("youtube", url || native, { status: 200, headers: { "Content-Type": ct || "application/x-protobuf" }, bodyBytes: new Uint8Array(data) }); }
@@ -100,6 +126,38 @@
   test("Protobuf JSON content type passes unchanged", function () { same(binary(ld(7,[1]), native, "application/json"), {}); });
   test("Protobuf large body passes unchanged", function () { same(binary(new Array(2097153).fill(0)), {}); });
   test("Protobuf non-player endpoint passes unchanged", function () { same(binary(ld(7,[1]), "https://youtubei.googleapis.com/youtubei/v1/browse"), {}); });
+  test("Binary body field used by compatible client adapters is supported", function () {
+    var kept = ld(2, [8, 1]), input = new Uint8Array(kept.concat(ld(7, [1])));
+    [input, input.buffer].forEach(function (body) {
+      var out = run("youtube", native, { status: 200, headers: { "Content-Type": "application/x-protobuf" }, body: body });
+      same(Array.from(new Uint8Array(out.body)), kept);
+    });
+  });
+  test("Binary views preserve byte offset and byte length", function () {
+    var kept = ld(2, [8, 1]), input = new Uint8Array([255].concat(kept, ld(7, [1]), [255]));
+    var view = new DataView(input.buffer, 1, input.length - 2);
+    var out = run("youtube", native, { status: 200, headers: { "Content-Type": "application/x-protobuf" }, bodyBytes: view });
+    same(Array.from(new Uint8Array(out.body)), kept);
+  });
+  test("Invalid binary arrays are not silently truncated to bytes", function () {
+    same(run("youtube", native, { status: 200, headers: { "Content-Type": "application/x-protobuf" }, bodyBytes: ld(2,[8,1]).concat(ld(7,[257])) }), {});
+  });
+  test("Numeric binary input never becomes an allocation size", function () {
+    var allocated = false, reply;
+    function RejectNumber(value) { if (typeof value === "number") { allocated = true; throw new Error("numeric allocation"); } return new Uint8Array(value); }
+    RejectNumber.prototype = Uint8Array.prototype;
+    new Function("$request", "$response", "$done", "Uint8Array", sources.youtube)({ url: native }, { status: 200, headers: { "Content-Type": "application/x-protobuf" }, bodyBytes: 42 }, function (v) { reply = v; }, RejectNumber);
+    same(reply, {}); assert(!allocated, "allocated from untrusted numeric input");
+  });
+  test("Unchanged protobuf avoids one temporary view per field", function () {
+    var input = []; for (var i = 0; i < 10000; i++) input.push(8, 1);
+    var original = Uint8Array.prototype.subarray, views = 0;
+    try {
+      Uint8Array.prototype.subarray = function (start, end) { views++; return original.call(this, start, end); };
+      same(binary(input), {});
+    } finally { Uint8Array.prototype.subarray = original; }
+    assert(views <= 4, "excessive temporary binary views: " + views);
+  });
   test("Scripts contain no network, persistent state or logging APIs", function () {
     [sources.social, sources.youtube].forEach(function (s) { assert(!/\$(?:httpClient|task|persistentStore|prefs|notification)|\b(?:fetch|XMLHttpRequest|WebSocket)\s*\(|console\./.test(s), "forbidden API"); });
   });
