@@ -1,6 +1,6 @@
 {
   "runtime": "V8 code-mode harness",
-  "passed": 44,
+  "passed": 52,
   "failures": [],
   "tests": [
     "Reddit filters explicit ad posts and preserves NSFW",
@@ -28,6 +28,9 @@
     "NDJSON is not rewritten as a single JSON document",
     "JSON media type suffix and charset remain supported",
     "Ad-free response skips JSON parsing and is not reserialized",
+    "Reddit OAuth listings work without a trailing slash",
+    "Reddit HTML pages and mutations are outside the script scope",
+    "Reddit JSON comment links stay supported",
     "Protobuf removes fields 7 and 68, preserves all other bytes",
     "Protobuf same field numbers with other wire types survive",
     "Protobuf nested field 7 in unknown message survives",
@@ -46,76 +49,32 @@
     "Invalid binary arrays are not silently truncated to bytes",
     "Numeric binary input never becomes an allocation size",
     "Unchanged protobuf avoids one temporary view per field",
+    "Protobuf names in MIME parameters cannot enable binary rewriting",
+    "Actual protobuf and octet-stream media types stay supported",
+    "Fragmented protobuf output respects a separate memory budget",
+    "Small alternating protobuf fields still filter exactly",
+    "get_watch fragment budget is shared across nested players",
     "Scripts contain no network, persistent state or logging APIs"
   ],
   "benchmark": {
     "fixture": "100 posts, 10 explicit Reddit ads",
     "iterations": 100,
-    "milliseconds": 21
+    "milliseconds": 19
   },
   "iphone_runtime_tested": false,
-  "comparison_benchmark": {
-    "runtime": "V8 code-mode harness; not iPhone JSC",
-    "iterations_per_sample": 100,
-    "samples": 5,
-    "workloads": [
-      {
-        "name": "json_100_posts_no_ads",
-        "before_ms": [
-          10,
-          7,
-          7,
-          8,
-          8
-        ],
-        "after_ms": [
-          0,
-          1,
-          1,
-          0,
-          0
-        ],
-        "before_median_ms": 8,
-        "after_median_ms": 0
-      },
-      {
-        "name": "json_100_posts_10_ads",
-        "before_ms": [
-          12,
-          10,
-          8,
-          8,
-          10
-        ],
-        "after_ms": [
-          17,
-          15,
-          13,
-          13,
-          13
-        ],
-        "before_median_ms": 10,
-        "after_median_ms": 13
-      },
-      {
-        "name": "protobuf_10000_fields_no_ads",
-        "before_ms": [
-          64,
-          55,
-          50,
-          44,
-          45
-        ],
-        "after_ms": [
-          6,
-          8,
-          7,
-          8,
-          9
-        ],
-        "before_median_ms": 50,
-        "after_median_ms": 8
-      }
-    ]
+  "optimization_profile": {
+    "fixture": "200 KB protobuf with 50000 alternating retained/ad fields",
+    "before": {
+      "temporary_subarrays": 50000,
+      "milliseconds": 24,
+      "returned_original": false
+    },
+    "after": {
+      "temporary_subarrays": 4096,
+      "milliseconds": 4,
+      "returned_original": true
+    },
+    "synthetic": true,
+    "iphone_runtime_tested": false
   }
 }

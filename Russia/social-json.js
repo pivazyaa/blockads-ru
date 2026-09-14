@@ -33,7 +33,8 @@
 
   function classify(url) {
     if (/^https:\/\/gql(?:-fed)?\.reddit\.com\/?(?:\?[^#]*)?$/.test(url)) return "reddit";
-    if (/^https:\/\/(?:www\.|oauth\.)?reddit\.com\/(?:r\/[^/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/|\.json(?:\?|$))/.test(url)) return "reddit";
+    if (/^https:\/\/oauth\.reddit\.com\/(?:r\/[^/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?(?:\.json)?(?:\?[^#]*)?$/.test(url)) return "reddit";
+    if (/^https:\/\/(?:www\.)?reddit\.com\/(?:r\/[^/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?\.json(?:\?[^#]*)?$/.test(url)) return "reddit";
     if (/^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$)/.test(url)) return "tiktok";
     if (/^https:\/\/(?:(?:www|m|music)\.youtube\.com|youtubei(?:-att)?\.googleapis\.com)\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$)/.test(url)) return "youtube";
     return null;

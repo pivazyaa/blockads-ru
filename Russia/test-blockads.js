@@ -96,6 +96,21 @@
     new Function("$request", "$response", "$done", "JSON", sources.social)({ url: reddit }, { status: 200, body: body }, function (v) { reply = v; }, fakeJSON);
     same(reply, {}); assert(parsed === 0, "ad-free data was parsed");
   });
+  test("Reddit OAuth listings work without a trailing slash", function () {
+    ["https://oauth.reddit.com/hot?limit=25", "https://oauth.reddit.com/r/test/new", "https://oauth.reddit.com/r/test/comments/abc/title/?sort=top", "https://oauth.reddit.com/hot.json?limit=25"].forEach(function (url) {
+      same(JSON.parse(json(url, { data: { children: [{ data: { promoted: true } }, { data: { id: "keep" } }] } }).body), { data: { children: [{ data: { id: "keep" } }] } });
+    });
+  });
+  test("Reddit HTML pages and mutations are outside the script scope", function () {
+    ["https://www.reddit.com/hot/", "https://www.reddit.com/r/test/comments/abc/title/", "https://oauth.reddit.com/api/comment", "https://oauth.reddit.com/api/vote", "https://oauth.reddit.com/hotness", "https://reddit.com/comments/id?format=json"].forEach(function (url) {
+      same(json(url, { commentsPageAds: [1] }), {});
+    });
+  });
+  test("Reddit JSON comment links stay supported", function () {
+    ["https://www.reddit.com/comments/abc/title/.json", "https://reddit.com/r/test/comments/abc/title.json?sort=top"].forEach(function (url) {
+      same(JSON.parse(json(url, { commentsPageAds: [1] }).body), { commentsPageAds: [] });
+    });
+  });
   function vi(n) { var a = []; do { var b = n % 128; n = Math.floor(n / 128); a.push(b + (n ? 128 : 0)); } while (n); return a; }
   function ld(field, data) { return vi(field * 8 + 2).concat(vi(data.length), data); }
   function binary(data, url, ct) { return run("youtube", url || native, { status: 200, headers: { "Content-Type": ct || "application/x-protobuf" }, bodyBytes: new Uint8Array(data) }); }
@@ -157,6 +172,29 @@
       same(binary(input), {});
     } finally { Uint8Array.prototype.subarray = original; }
     assert(views <= 4, "excessive temporary binary views: " + views);
+  });
+  test("Protobuf names in MIME parameters cannot enable binary rewriting", function () {
+    ["application/json; note=protobuf", "text/html; filename=octet-stream", "application/not-protobuf", "application/x-protobuf-stream"].forEach(function (ct) {
+      same(binary([8, 1, 58, 0], native, ct), {});
+    });
+  });
+  test("Actual protobuf and octet-stream media types stay supported", function () {
+    ["application/x-protobuf; charset=binary", "application/octet-stream", "application/protobuf", "application/vnd.youtube.ytfe+protobuf"].forEach(function (ct) {
+      same(Array.from(new Uint8Array(binary([8, 1, 58, 0], native, ct).body)), [8, 1]);
+    });
+  });
+  test("Fragmented protobuf output respects a separate memory budget", function () {
+    var input = []; for (var i = 0; i < 4097; i++) input.push(8, 1, 58, 0);
+    same(binary(input), {});
+  });
+  test("Small alternating protobuf fields still filter exactly", function () {
+    var input = [], kept = []; for (var i = 0; i < 8; i++) { input.push(8, i, 58, 0); kept.push(8, i); }
+    same(Array.from(new Uint8Array(binary(input).body)), kept);
+  });
+  test("get_watch fragment budget is shared across nested players", function () {
+    var player = []; for (var i = 0; i < 2100; i++) player.push(8, 1, 58, 0);
+    var input = ld(1, ld(2, player)).concat(ld(1, ld(2, player)));
+    same(binary(input, "https://youtubei.googleapis.com/youtubei/v1/get_watch"), {});
   });
   test("Scripts contain no network, persistent state or logging APIs", function () {
     [sources.social, sources.youtube].forEach(function (s) { assert(!/\$(?:httpClient|task|persistentStore|prefs|notification)|\b(?:fetch|XMLHttpRequest|WebSocket)\s*\(|console\./.test(s), "forbidden API"); });

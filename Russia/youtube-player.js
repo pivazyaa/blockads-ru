@@ -18,14 +18,19 @@
     if (!/(^|\s)200(?:\s|$)/.test(status)) return {};
     var headers = $response.headers || {}, ct = "";
     for (var k in headers) if (k.toLowerCase() === "content-type") ct = String(headers[k]);
-    if (!/(?:protobuf|octet-stream)/i.test(ct)) return {};
+    if (!/^application\/(?:(?:x-)?protobuf|octet-stream|[a-z0-9.-]+\+protobuf)(?:\s*;|$)/i.test(ct)) return {};
     // Shadowrocket-compatible adapters may expose binary data as body, not bodyBytes.
     var source = $response.bodyBytes != null ? $response.bodyBytes : $response.body;
     var bytes = binaryView(source);
     if (!bytes || !bytes.length) return {};
-    var state = { path: match[1] === "get_watch" ? [1, 2] : [], removed: 0, fields: 0, started: Date.now() };
+    var state = { path: match[1] === "get_watch" ? [1, 2] : [], removed: 0, fields: 0, pieces: 0, started: Date.now() };
     var result = cleanMessage(bytes, 0, state);
     return state.removed ? { body: result.buffer } : {};
+  }
+
+  function reservePieces(state, count) {
+    state.pieces += count;
+    if (state.pieces > 4096) throw new Error("fragment budget");
   }
 
   function binaryView(source) {
@@ -55,7 +60,7 @@
       else throw new Error("unsupported wire type");
       if (cursor.pos > bytes.length) throw new Error("truncated");
       if (level === state.path.length && (field === 7 || field === 68) && wire === 2) {
-        if (start > segmentStart) { pieces.push(bytes.subarray(segmentStart, start)); kept += start - segmentStart; }
+        if (start > segmentStart) { reservePieces(state, 1); pieces.push(bytes.subarray(segmentStart, start)); kept += start - segmentStart; }
         segmentStart = cursor.pos;
         state.removed++; continue;
       }
@@ -63,6 +68,7 @@
         var removedBeforeChild = state.removed;
         var child = cleanMessage(bytes.subarray(payload, cursor.pos), level + 1, state);
         if (state.removed !== removedBeforeChild) {
+          reservePieces(state, start > segmentStart ? 4 : 3);
           var encodedLength = writeVarint(child.length), prefix = bytes.subarray(start, tagEnd);
           if (start > segmentStart) { pieces.push(bytes.subarray(segmentStart, start)); kept += start - segmentStart; }
           pieces.push(prefix, encodedLength, child);
@@ -72,7 +78,7 @@
       }
     }
     if (state.removed === before) return bytes;
-    if (segmentStart < bytes.length) { pieces.push(bytes.subarray(segmentStart)); kept += bytes.length - segmentStart; }
+    if (segmentStart < bytes.length) { reservePieces(state, 1); pieces.push(bytes.subarray(segmentStart)); kept += bytes.length - segmentStart; }
     if (!kept) throw new Error("empty result");
     var result = new Uint8Array(kept), offset = 0;
     for (var i = 0; i < pieces.length; i++) { result.set(pieces[i], offset); offset += pieces[i].length; }
