@@ -1,11 +1,9 @@
 #!name=BlockAds RU - YouTube
-#!desc=Рекламные поля player/get_watch и поддерживаемых веб-JSON. Минимальная обработка; без подмены видеопотока и Premium. Эффект зависит от формата ответа YouTube.
+#!desc=Совместимая отдельная версия. При использовании единого BlockAds RU отключите этот модуль.
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
 # SPDX-License-Identifier: GPL-3.0-only
-# Скрипт не трогает googlevideo.com, initplayback, log_event, настройки аккаунта и субтитры.
-# Не включать вместе с Maasea/fmz200 YouTube-модулем.
 [Script]
-RU-YouTube-Player = type=http-response, pattern=^https:\/\/youtubei(?:-att)?\.googleapis\.com\/youtubei\/v1\/(?:player|get_watch)(?:\?|$), requires-body=true, binary-body-mode=true, max-size=2097152, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/bb26272c251a7eff82050412c219def9ac881abd/Russia/youtube-player.js
-RU-YouTube-Web = type=http-response, pattern=^https:\/\/(?:www|m|music)\.youtube\.com\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/bb26272c251a7eff82050412c219def9ac881abd/Russia/social-json.js
+RU-YouTube-Player = type=http-response, pattern=^https:\/\/youtubei(?:-att)?\.googleapis\.com\/youtubei\/v1\/(?:player|get_watch)(?:\?|$), requires-body=true, binary-body-mode=true, max-size=2097152, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/youtube-player.js
+RU-YouTube-Web = type=http-response, pattern=^https:\/\/(?:www|m|music)\.youtube\.com\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/social-json.js
 [MITM]
-hostname = %APPEND% youtubei.googleapis.com, youtubei-att.googleapis.com, www.youtube.com, m.youtube.com, music.youtube.com
+hostname = %APPEND% m.youtube.com, music.youtube.com, www.youtube.com, youtubei.googleapis.com, youtubei-att.googleapis.com

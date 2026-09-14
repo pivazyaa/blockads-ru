@@ -1,10 +1,10 @@
 {
-    "checks":  120,
+    "checks":  181,
     "failures":  [
 
                  ],
-    "domain_rules":  2029,
-    "combined_scripts":  5,
-    "combined_mitm_hosts":  15,
+    "domain_rules":  2028,
+    "combined_scripts":  4,
+    "combined_mitm_hosts":  11,
     "iphone_runtime_tested":  false
 }

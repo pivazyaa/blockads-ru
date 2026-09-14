@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "release": "2026.09.14.2",
+  "script_ref": "39edd9f35c61e32e5aad507805bd02530ea2f9e5",
+  "passthrough_roots": [
+    "x.com",
+    "twitter.com",
+    "twimg.com",
+    "t.co",
+    "ads-twitter.com"
+  ],
+  "scripts": [
+    {
+      "id": "RU-Reddit",
+      "module": "Reddit-RU.module",
+      "pattern": "^https:\\/\\/(?:gql(?:-fed)?\\.reddit\\.com\\/?(?:\\?[^#]*)?$|(?:(?:www|oauth)\\.)?reddit\\.com\\/(?:r\\/[^\\/?#]+\\/)?(?:hot|new|top|best|rising|comments)(?:\\/|\\.json(?:\\?|$)))",
+      "file": "social-json.js",
+      "max_size": 1048576,
+      "binary": false,
+      "hosts": [
+        "gql.reddit.com",
+        "gql-fed.reddit.com",
+        "oauth.reddit.com",
+        "reddit.com",
+        "www.reddit.com"
+      ]
+    },
+    {
+      "id": "RU-TikTok-Web",
+      "module": "TikTok-Web-RU.module",
+      "pattern": "^https:\\/\\/www\\.tiktok\\.com\\/api\\/(?:recommend|post|mix)\\/item_list\\/(?:\\?|$)",
+      "file": "social-json.js",
+      "max_size": 1048576,
+      "binary": false,
+      "hosts": [
+        "www.tiktok.com"
+      ]
+    },
+    {
+      "id": "RU-YouTube-Player",
+      "module": "YouTube-RU.module",
+      "pattern": "^https:\\/\\/youtubei(?:-att)?\\.googleapis\\.com\\/youtubei\\/v1\\/(?:player|get_watch)(?:\\?|$)",
+      "file": "youtube-player.js",
+      "max_size": 2097152,
+      "binary": true,
+      "hosts": [
+        "youtubei.googleapis.com",
+        "youtubei-att.googleapis.com"
+      ]
+    },
+    {
+      "id": "RU-YouTube-Web",
+      "module": "YouTube-RU.module",
+      "pattern": "^https:\\/\\/(?:www|m|music)\\.youtube\\.com\\/youtubei\\/v1\\/(?:player|browse|next|search)(?:\\?|$)",
+      "file": "social-json.js",
+      "max_size": 1048576,
+      "binary": false,
+      "hosts": [
+        "www.youtube.com",
+        "m.youtube.com",
+        "music.youtube.com"
+      ]
+    }
+  ]
+}

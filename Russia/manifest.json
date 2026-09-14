@@ -6,13 +6,13 @@
     },
     {
         "file":  "blockAds-RU.module",
-        "bytes":  80415,
-        "sha256":  "7130b896a86f0570264929ead25b45c3c560147505d3493cd25fad6c57e78c6d"
+        "bytes":  80054,
+        "sha256":  "eb139b4fa1ad0610367ceeeb7f5c901e0b8aad79035c64824779a18ac66029fe"
     },
     {
         "file":  "build-rules.ps1",
-        "bytes":  10971,
-        "sha256":  "5ee85ba943cf4fed0d4643dab2faca9f8701f373b4b398c6b8a010821455d67a"
+        "bytes":  13493,
+        "sha256":  "0a4756b3a971796cb8a67500412d560e81a30e9902c5c30dcc32f31e6ba5d611"
     },
     {
         "file":  "LICENSE",
@@ -20,63 +20,68 @@
         "sha256":  "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
     },
     {
+        "file":  "mitm-config.json",
+        "bytes":  1846,
+        "sha256":  "d6cd9744d953a1a6e9cd484f5d84cd0739050385376108d5dd5f3dc54407de6e"
+    },
+    {
         "file":  "README.md",
-        "bytes":  15998,
-        "sha256":  "551e64176634058158204c3f7e6d42a92105d203fbc91888db01fe318dbb20de"
+        "bytes":  19398,
+        "sha256":  "4467f5c365c94aadeb27045be5e799c535ea0e654071ca67547d76cde4e203de"
     },
     {
         "file":  "Reddit-RU.module",
-        "bytes":  967,
-        "sha256":  "c1bbfd23e32959abbfde94a7aefe1071aaec4726c40dd5f63d9b14c2ca280772"
+        "bytes":  817,
+        "sha256":  "df1e4b7d5fd1074e8af8553332cadeb18498cf95060e3eafa58f146055c3e035"
     },
     {
         "file":  "release-checks.json",
         "bytes":  195,
-        "sha256":  "f7a160835b09d36dbffaaa03d6744c8b3ac2618adbc6842ad8487d9f9d1863e2"
+        "sha256":  "53943892f5b7d44fc95bede03565dc8250b4234b8beee93bee20b584d0ab1dd6"
     },
     {
         "file":  "social-json.js",
-        "bytes":  5087,
-        "sha256":  "15c9325f36242495cb9aa2d8c3a813f322f3635127b2dd6c5e793c0f8eef7179"
+        "bytes":  5694,
+        "sha256":  "d7c001343e7f26de17aee306c2f32b09473ac04e539ec48ba6c9453201c418db"
     },
     {
         "file":  "sources.lock.json",
-        "bytes":  29631,
-        "sha256":  "9f914eadc14cbfa1191fda1227976675de236d007025869caa60c541b1719a2a"
+        "bytes":  29394,
+        "sha256":  "0e126ad8c45843e9bfb7361534fcf67f56f9f8dfabbe03b607234d2908b1f907"
     },
     {
         "file":  "test-blockads.js",
-        "bytes":  10025,
-        "sha256":  "ddf7aa4b15a8b6cef5429419cb7cb0e97e1be3ec05e984381601a4d55aab6b04"
+        "bytes":  14091,
+        "sha256":  "12368e0bc2490d9fe65c04fe2700570e04a59933ebbe81f64fe760b5017f7158"
     },
     {
         "file":  "test-results.json",
-        "bytes":  1892,
-        "sha256":  "c71b5ad7f7c12d2f0c12bf9906dfa57ee099196513aefb3cd4e7a9e32f57af1b"
+        "bytes":  3753,
+        "sha256":  "a6a07ce5240c696a5b3094e79ff69e4a075baacd981920bd59cbd675019801b9"
     },
     {
         "file":  "TikTok-Web-RU.module",
-        "bytes":  695,
-        "sha256":  "2eeef5314a7a6902137090678d18a2b8193c7948d065cdaf5bf08b80ca641445"
+        "bytes":  671,
+        "sha256":  "28282e34c0c0167c974c6b7aaffee26aca2dd2fe1ff84ce20a3dc054f26ebd3b"
     },
     {
         "file":  "validate-release.ps1",
-        "bytes":  5350,
-        "sha256":  "0fe8e63b9ee8275a8703734e673d506f465083399522cf67cdf4f9b64258dbe2"
+        "bytes":  7002,
+        "sha256":  "f68164926b44ce1c774f8f363c62ca3448679892b8eaf7d11827a00a1971d4b7"
     },
     {
         "file":  "X-RU.module",
-        "bytes":  896,
-        "sha256":  "4fd586483b9c7e5211d4b118e75a5049e93939460b19683ccb426ea599f61177"
+        "bytes":  471,
+        "sha256":  "32ba756b7bd63075c4e4be4b559b1a55c440b65c18db1c715836a28450c8f3ab"
     },
     {
         "file":  "youtube-player.js",
-        "bytes":  4413,
-        "sha256":  "a5af478e3a5e5421a2512ececb009f3ffb56994b124f43087f3e1f4a350da8fe"
+        "bytes":  5426,
+        "sha256":  "3db921607800cd124324fd1bf407ddcf7fe28e474fca141fcc16aaf6b7330de1"
     },
     {
         "file":  "YouTube-RU.module",
-        "bytes":  1443,
-        "sha256":  "cbb13f84ae703b0956c2426b1ff0d86e05aeeebb76c815f3d60f891b679cbc60"
+        "bytes":  1130,
+        "sha256":  "9da8cc46d738bc6d70ed59d3070d129f35f9b5c0981056a028172277185f8468"
     }
 ]

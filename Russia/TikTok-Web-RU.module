@@ -1,8 +1,8 @@
-#!name=BlockAds RU - TikTok Web
-#!desc=Только веб-версия TikTok: удаление itemList с isAd=true. Не заявляет совместимость MITM с нативным iOS-приложением.
+#!name=BlockAds RU - TikTok-Web
+#!desc=Совместимая отдельная версия. При использовании единого BlockAds RU отключите этот модуль.
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
 # SPDX-License-Identifier: GPL-3.0-only
 [Script]
-RU-TikTok-Web = type=http-response, pattern=^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/bb26272c251a7eff82050412c219def9ac881abd/Russia/social-json.js
+RU-TikTok-Web = type=http-response, pattern=^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/39edd9f35c61e32e5aad507805bd02530ea2f9e5/Russia/social-json.js
 [MITM]
 hostname = %APPEND% www.tiktok.com
