@@ -1,6 +1,0 @@
-#!name=BlockAds RU - X
-#!desc=Перехват X отключён после сбоя загрузки постов на iPhone. Этот старый модуль можно удалить; основной BlockAds RU содержит остальные обработчики.
-#!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
-# SPDX-License-Identifier: GPL-3.0-only
-# Compatibility placeholder: no X scripts, MITM hosts or domain rejections.
-[Rule]
