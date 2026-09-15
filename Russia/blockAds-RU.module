@@ -1,34 +1,24 @@
 #!name=BlockAds RU
-#!desc=2026.09.14.3: точнее обработка Reddit, ограничен расход памяти YouTube, учтены исключения AdGuard. MITM встроен; X работает без перехвата. Для HTTPS нужен собственный доверенный сертификат.
+#!desc=2026.09.15.1: быстрый доменный блокировщик рекламы для Shadowrocket. Без MITM, JavaScript и расшифровки HTTPS.
 #!author=fmz200, AdGuard contributors; adaptation for pivazyaa
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
-#!date=2026-09-14
+#!date=2026-09-15
 # SPDX-License-Identifier: GPL-3.0-only
 # Избирательный форк fmz200 с правилами AdGuard. См. README.md и sources.lock.json.
-# Не импортируйте исходный blockAds одновременно с этой версией.
-# Все поддерживаемые обработчики включены ниже. Отдельные модули не добавлять.
-# X/Twitter, t.co и twimg не расшифровываются и не блокируются этой версией.
-# Скрипты загружаются автоматически по закреплённым ссылкам. CA создаётся на самом iPhone.
+# Только доменные решения REJECT; маршрутизация и DNS остаются в основном конфиге.
+# Сертификат, HTTPS Decryption, Script и MITM для этого модуля не нужны.
 
 [Rule]
-DOMAIN,iad.apple.com,REJECT
 DOMAIN-SUFFIX,023hysj.com,REJECT
 DOMAIN-SUFFIX,079301eaff0975107716716fd1cb0dcd.com,REJECT
-DOMAIN-SUFFIX,103.224.182.210,REJECT
 DOMAIN-SUFFIX,152media.cloud,REJECT
 DOMAIN-SUFFIX,17324756.cfd,REJECT
-DOMAIN-SUFFIX,188.72.219.36,REJECT
-DOMAIN-SUFFIX,193.200.64.24,REJECT
-DOMAIN-SUFFIX,194.63.143.96,REJECT
 DOMAIN-SUFFIX,1astrjasr.ru,REJECT
 DOMAIN-SUFFIX,1f7wwaex9rbh.com,REJECT
 DOMAIN-SUFFIX,1mp.mobi,REJECT
 DOMAIN-SUFFIX,1p3opxwwet.ru,REJECT
 DOMAIN-SUFFIX,1qe.info,REJECT
 DOMAIN-SUFFIX,2022welcome.com,REJECT
-DOMAIN-SUFFIX,206.54.181.250,REJECT
-DOMAIN-SUFFIX,23.224.199.74,REJECT
-DOMAIN-SUFFIX,23.224.199.96,REJECT
 DOMAIN-SUFFIX,23oct2023.site,REJECT
 DOMAIN-SUFFIX,247realmedia.com,REJECT
 DOMAIN-SUFFIX,29773.v.fwmrm.net,REJECT
@@ -39,7 +29,6 @@ DOMAIN-SUFFIX,3ez1ja1uq3.ru,REJECT
 DOMAIN-SUFFIX,3n2nc158v6u5hv6o.cfd,REJECT
 DOMAIN-SUFFIX,468.vologdainfo.ru,REJECT
 DOMAIN-SUFFIX,4mlhn1ocg4.com,REJECT
-DOMAIN-SUFFIX,54.222.186.106,REJECT
 DOMAIN-SUFFIX,5d0rac.ru,REJECT
 DOMAIN-SUFFIX,5dhnv8.ru,REJECT
 DOMAIN-SUFFIX,600fiber.net,REJECT
@@ -51,9 +40,9 @@ DOMAIN-SUFFIX,6rn05mmbct.ru,REJECT
 DOMAIN-SUFFIX,7kprtners.com,REJECT
 DOMAIN-SUFFIX,80xmedia.com,REJECT
 DOMAIN-SUFFIX,813c5.v.fwmrm.net,REJECT
-DOMAIN-SUFFIX,88.208.46.222,REJECT
 DOMAIN-SUFFIX,883.engine.mobileapptracking.com,REJECT
 DOMAIN-SUFFIX,99fkw4w8.com,REJECT
+DOMAIN-SUFFIX,a.applvn.com,REJECT
 DOMAIN-SUFFIX,a.ava.com.ua,REJECT
 DOMAIN-SUFFIX,a.gripi.online,REJECT
 DOMAIN-SUFFIX,a.hentaiocean.com,REJECT
@@ -258,6 +247,7 @@ DOMAIN-SUFFIX,ads.kingads.digital,REJECT
 DOMAIN-SUFFIX,ads.livetvcdn.net,REJECT
 DOMAIN-SUFFIX,ads.mobilityware.com,REJECT
 DOMAIN-SUFFIX,ads.mobvertising.net,REJECT
+DOMAIN-SUFFIX,ads.mopub.com,REJECT
 DOMAIN-SUFFIX,ads.oppomobile.com,REJECT
 DOMAIN-SUFFIX,ads.pdbarea.com,REJECT
 DOMAIN-SUFFIX,ads.people-group.net,REJECT
@@ -287,6 +277,7 @@ DOMAIN-SUFFIX,ads-ap-venues.yinzcam.com,REJECT
 DOMAIN-SUFFIX,adsassets.waze.com,REJECT
 DOMAIN-SUFFIX,adsassets-ipv6.waze.com,REJECT
 DOMAIN-SUFFIX,ads-banner.s3.ap-south-1.amazonaws.com,REJECT
+DOMAIN-SUFFIX,ads-bidder-api.twitter.com,REJECT
 DOMAIN-SUFFIX,ads-blocker-1.static-cloudflare.workers.dev,REJECT
 DOMAIN-SUFFIX,ads-bridge.pixocial.com,REJECT
 DOMAIN-SUFFIX,adsbuyclick.com,REJECT
@@ -485,7 +476,6 @@ DOMAIN-SUFFIX,appgiftwall.oss-us-west-1.aliyuncs.com,REJECT
 DOMAIN-SUFFIX,appgw.inmobi.com,REJECT
 DOMAIN-SUFFIX,applifier.com,REJECT
 DOMAIN-SUFFIX,applovin.com,REJECT
-DOMAIN-SUFFIX,applvn.com,REJECT
 DOMAIN-SUFFIX,applzr.com,REJECT
 DOMAIN-SUFFIX,appnext.hs.llnwd.net,REJECT
 DOMAIN-SUFFIX,appnext-a.akamaihd.net,REJECT
@@ -1271,7 +1261,6 @@ DOMAIN-SUFFIX,monitor.adcaffe.com,REJECT
 DOMAIN-SUFFIX,montmena.top,REJECT
 DOMAIN-SUFFIX,moofoonepaw.com,REJECT
 DOMAIN-SUFFIX,moonlighthathel.org,REJECT
-DOMAIN-SUFFIX,mopub.com,REJECT
 DOMAIN-SUFFIX,mopub-win-us-east.bksn.se,REJECT
 DOMAIN-SUFFIX,mossfast.com,REJECT
 DOMAIN-SUFFIX,mossru.com,REJECT
@@ -2037,12 +2026,3 @@ DOMAIN-SUFFIX,zzfoms.com,REJECT
 DOMAIN-SUFFIX,zzhengre.com,REJECT
 DOMAIN-SUFFIX,zzlocalsquared.com,REJECT
 DOMAIN-SUFFIX,zzyqkeniw.com,REJECT
-
-[Script]
-RU-Reddit = type=http-response, pattern=^https:\/\/(?:gql(?:-fed)?\.reddit\.com\/?(?:\?[^#]*)?$|oauth\.reddit\.com\/(?:r\/[^\/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?(?:\.json)?(?:\?[^#]*)?$|(?:www\.)?reddit\.com\/(?:r\/[^\/?#]+\/)?(?:hot|new|top|best|rising|comments)(?:\/[^?#]*)?\.json(?:\?[^#]*)?$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/social-json.js
-RU-TikTok-Web = type=http-response, pattern=^https:\/\/www\.tiktok\.com\/api\/(?:recommend|post|mix)\/item_list\/(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/social-json.js
-RU-YouTube-Player = type=http-response, pattern=^https:\/\/youtubei(?:-att)?\.googleapis\.com\/youtubei\/v1\/(?:player|get_watch)(?:\?|$), requires-body=true, binary-body-mode=true, max-size=2097152, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/youtube-player.js
-RU-YouTube-Web = type=http-response, pattern=^https:\/\/(?:www|m|music)\.youtube\.com\/youtubei\/v1\/(?:player|browse|next|search)(?:\?|$), requires-body=true, max-size=1048576, timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/70cda848e0d89e48e0fdd17ebd7fcb707db08f30/Russia/social-json.js
-
-[MITM]
-hostname = %APPEND% gql.reddit.com, gql-fed.reddit.com, m.youtube.com, music.youtube.com, oauth.reddit.com, reddit.com, www.reddit.com, www.tiktok.com, www.youtube.com, youtubei.googleapis.com, youtubei-att.googleapis.com

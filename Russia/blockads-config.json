@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "release": "2026.09.15.1",
+  "adguard_ref": "ebd6f4bc46f816cf75a41c9764dd35bed4a65b00",
+  "module_type": "domain-only",
+  "mitm_enabled": false
+}

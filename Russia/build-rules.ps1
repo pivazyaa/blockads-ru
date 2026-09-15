@@ -3,11 +3,11 @@ $work = $PSScriptRoot
 $out = Join-Path $work 'publish'
 New-Item -ItemType Directory -Path $out -Force | Out-Null
 $utf8 = New-Object System.Text.UTF8Encoding($false)
-$mitmDefinition = [IO.File]::ReadAllText(($work+'\mitm-config.json')) | ConvertFrom-Json
-if ($mitmDefinition.version -ne 1 -or $mitmDefinition.script_ref -notmatch '^[a-f0-9]{40}$') { throw 'Invalid MITM definition or script reference' }
-if ($mitmDefinition.release -notmatch '^\d{4}\.\d{2}\.\d{2}\.\d+$') { throw 'Invalid release identifier' }
+$definition = [IO.File]::ReadAllText(($work+'\blockads-config.json')) | ConvertFrom-Json
+if ($definition.version -ne 1 -or $definition.module_type -ne 'domain-only' -or $definition.mitm_enabled -ne $false) { throw 'Invalid domain-only definition' }
+if ($definition.release -notmatch '^\d{4}\.\d{2}\.\d{2}\.\d+$' -or $definition.adguard_ref -notmatch '^[a-f0-9]{40}$') { throw 'Invalid release or source reference' }
 $fmz = [pscustomobject]@{ref='3ca7487b4e4b86d9af76e50df72c62eacfbb659e'}
-$ag = [pscustomobject]@{ref='ebd6f4bc46f816cf75a41c9764dd35bed4a65b00'}
+$ag = [pscustomobject]@{ref=$definition.adguard_ref}
 $sources = @(
   'BaseFilter/sections/adservers.txt',
   'BaseFilter/sections/adservers_firstparty.txt',
@@ -32,7 +32,6 @@ function Get-PinnedSource([string]$file, [string]$url) {
 foreach ($source in ($sources+$exceptions)) {
   Get-PinnedSource (Join-Path ($work+'\sources\adguard') $source) ('https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/'+$ag.ref+'/'+$source)
 }
-Get-PinnedSource ($work+'\upstream\Shadowrocket\module\blockAds.srmodule') ('https://raw.githubusercontent.com/fmz200/wool_scripts/'+$fmz.ref+'/Shadowrocket/module/blockAds.srmodule')
 Get-PinnedSource ($work+'\upstream\LICENSE') ('https://raw.githubusercontent.com/fmz200/wool_scripts/'+$fmz.ref+'/LICENSE')
 $candidates = @{}
 $excluded = @{}
@@ -57,21 +56,10 @@ foreach ($source in $sources) {
     # Preserve semantics: conditional, wildcard, URL, third-party and application rules are not globalized.
     if ($line -match '^\|\|([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)\^$') {
       $hostName = $Matches[1]
+      # Keep DNS names only. Numeric literals are not useful DOMAIN-SUFFIX rules.
+      if ($hostName -notmatch '[a-z]') { continue }
       $candidates['DOMAIN-SUFFIX,'+$hostName] = 'AdGuard/'+$source
     }
-  }
-}
-$reviewedFmz = @(
-  'adcolony.com','adroll.com','chartboost.com','criteo.com','criteo.net',
-  'inmobi.com','inmobi.net','inmobicdn.net','mopub.com','openx.net',
-  'pubmatic.com','rubiconproject.com','smartadserver.com','applvn.com',
-  'applovin.com','ads-twitter.com','st.yandexadexchange.net','ads.yandex.com',
-  'doubleclick.net','googleadservices.com','googlesyndication.com',
-  'iadsdk.apple.com','iad.apple.com'
-)
-foreach ($line in [IO.File]::ReadAllLines(($work+'\upstream\Shadowrocket\module\blockAds.srmodule'))) {
-  if ($line -match '^(DOMAIN(?:-SUFFIX)?),([^,]+),REJECT$' -and $reviewedFmz -contains $Matches[2]) {
-    $candidates[$Matches[1]+','+$Matches[2]] = 'fmz200/Shadowrocket/module/blockAds.srmodule'
   }
 }
 # Mixed service bootstraps, security services and identity/payment endpoints stay outside the blocker.
@@ -112,9 +100,6 @@ function Test-WildcardException([string]$hostName, [bool]$isSuffix, [string]$exc
 foreach ($key in @($candidates.Keys)) {
   $parts = $key.Split(','); $hostName = $parts[1]; $reason = $null
   if ($protected -contains $hostName -or $hostName -match '(safebrowsing|(^|\.)ocsp\.|(^|\.)crl\.)') { $reason = 'shared-or-security-service' }
-  foreach ($compatibleRoot in $mitmDefinition.passthrough_roots) {
-    if ((Test-Under $hostName $compatibleRoot) -or ($parts[0] -eq 'DOMAIN-SUFFIX' -and (Test-Under $compatibleRoot $hostName))) { $reason = 'X-iPhone-compatibility'; break }
-  }
   foreach ($hostToKeep in $critical) {
     if ($hostToKeep -eq $hostName -or ($parts[0] -eq 'DOMAIN-SUFFIX' -and (Test-Under $hostToKeep $hostName))) { $reason = 'critical-service'; break }
   }
@@ -141,88 +126,44 @@ foreach ($key in @($candidates.Keys | Sort-Object {$_.Split(',')[1].Length}, {$_
   if (!$covered) { $kept.Add($key+',REJECT'); if ($p[0] -eq 'DOMAIN-SUFFIX') { [void]$suffixes.Add($hostName) } }
 }
 $rules = @($kept | Sort-Object)
-$scriptLines = New-Object 'System.Collections.Generic.List[string]'
-$scriptNames = New-Object 'System.Collections.Generic.HashSet[string]'
-$mitmHosts = New-Object 'System.Collections.Generic.HashSet[string]'
-$legacyLines = @{}
-$legacyHosts = @{}
-foreach ($entry in $mitmDefinition.scripts) {
-  if ($entry.id -notmatch '^RU-[A-Za-z0-9-]+$' -or !$scriptNames.Add($entry.id)) { throw 'Invalid or duplicate script name' }
-  if ($entry.file -notin @('social-json.js','youtube-player.js') -or $entry.module -notin @('Reddit-RU.module','TikTok-Web-RU.module','YouTube-RU.module')) { throw 'Unexpected script or module path' }
-  if ($entry.pattern.Contains(',') -or $entry.pattern.Contains("`n")) { throw 'Unsafe script pattern delimiter' }
-  if ($entry.max_size -notin @(1048576,2097152)) { throw 'Unexpected body limit' }
-  $binary = if ($entry.binary) { ', binary-body-mode=true' } else { '' }
-  $line = $entry.id+' = type=http-response, pattern='+$entry.pattern+', requires-body=true'+$binary+', max-size='+$entry.max_size+', timeout=5, engine=jsc, script-path=https://raw.githubusercontent.com/pivazyaa/blockads-ru/'+$mitmDefinition.script_ref+'/Russia/'+$entry.file
-  $scriptLines.Add($line)
-  if (!$legacyLines.ContainsKey($entry.module)) {
-    $legacyLines[$entry.module] = New-Object 'System.Collections.Generic.List[string]'
-    $legacyHosts[$entry.module] = New-Object 'System.Collections.Generic.HashSet[string]'
-  }
-  $legacyLines[$entry.module].Add($line)
-  foreach ($hostName in $entry.hosts) {
-    if ($hostName -notmatch '^[a-z0-9.-]+$') { throw 'Unexpected MITM hostname' }
-    foreach ($compatibleRoot in $mitmDefinition.passthrough_roots) {
-      if (Test-Under $hostName $compatibleRoot) { throw 'X compatibility host must not be decrypted' }
-    }
-    [void]$mitmHosts.Add($hostName)
-    [void]$legacyHosts[$entry.module].Add($hostName)
-  }
-}
-if ($scriptLines.Count -ne 4 -or $mitmHosts.Count -ne 11) { throw 'Incomplete combined MITM configuration' }
 $header = @'
 #!name=BlockAds RU
-#!desc=__RELEASE__: точнее обработка Reddit, ограничен расход памяти YouTube, учтены исключения AdGuard. MITM встроен; X работает без перехвата. Для HTTPS нужен собственный доверенный сертификат.
+#!desc=__RELEASE__: быстрый доменный блокировщик рекламы для Shadowrocket. Без MITM, JavaScript и расшифровки HTTPS.
 #!author=fmz200, AdGuard contributors; adaptation for pivazyaa
 #!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
 #!date=__DATE__
 # SPDX-License-Identifier: GPL-3.0-only
 # Избирательный форк fmz200 с правилами AdGuard. См. README.md и sources.lock.json.
-# Не импортируйте исходный blockAds одновременно с этой версией.
-# Все поддерживаемые обработчики включены ниже. Отдельные модули не добавлять.
-# X/Twitter, t.co и twimg не расшифровываются и не блокируются этой версией.
-# Скрипты загружаются автоматически по закреплённым ссылкам. CA создаётся на самом iPhone.
+# Только доменные решения REJECT; маршрутизация и DNS остаются в основном конфиге.
+# Сертификат, HTTPS Decryption, Script и MITM для этого модуля не нужны.
 
 [Rule]
 '@
-$header = $header.Replace('__RELEASE__', $mitmDefinition.release).Replace('__DATE__', $mitmDefinition.release.Substring(0,10).Replace('.','-'))
-$combined = $header+"`n"+($rules -join "`n")+"`n`n[Script]`n"+($scriptLines -join "`n")+"`n`n[MITM]`n"
-$combined += 'hostname = %APPEND% '+(@($mitmHosts | Sort-Object) -join ', ')+"`n"
+$header = $header.Replace('__RELEASE__', $definition.release).Replace('__DATE__', $definition.release.Substring(0,10).Replace('.','-'))
+$combined = $header+"`n"+($rules -join "`n")+"`n"
 [IO.File]::WriteAllText(($out+'\blockAds-RU.module'), $combined, $utf8)
-foreach ($name in $legacyLines.Keys) {
-  $legacy = '#!name=BlockAds RU - '+$name.Replace('-RU.module','').Replace('.module','')+"`n"
-  $legacy += '#!desc=Совместимая отдельная версия. При использовании единого BlockAds RU отключите этот модуль.'+"`n"
-  $legacy += '#!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia'+"`n# SPDX-License-Identifier: GPL-3.0-only`n[Script]`n"
-  $legacy += ($legacyLines[$name] -join "`n")+"`n[MITM]`n"+'hostname = %APPEND% '+(@($legacyHosts[$name] | Sort-Object) -join ', ')+"`n"
-  [IO.File]::WriteAllText((Join-Path $out $name), $legacy, $utf8)
+$obsolete = @('Reddit-RU.module','TikTok-Web-RU.module','YouTube-RU.module','X-RU.module','social-json.js','youtube-player.js','test-blockads.js','test-results.json','tiktok-evidence.json','mitm-config.json')
+foreach ($name in $obsolete) {
+  $old = Join-Path $out $name
+  if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force }
 }
-$xCompatibility = @'
-#!name=BlockAds RU - X
-#!desc=Перехват X отключён после сбоя загрузки постов на iPhone. Этот старый модуль можно удалить; основной BlockAds RU содержит остальные обработчики.
-#!homepage=https://github.com/pivazyaa/blockads-ru/tree/main/Russia
-# SPDX-License-Identifier: GPL-3.0-only
-# Compatibility placeholder: no X scripts, MITM hosts or domain rejections.
-[Rule]
-'@
-[IO.File]::WriteAllText(($out+'\X-RU.module'), $xCompatibility+"`n", $utf8)
 $lock = [ordered]@{
   generated_utc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ'); fmz200_ref = $fmz.ref; adguard_ref = $ag.ref
   rule_count = $rules.Count; bytes = (Get-Item ($out+'\blockAds-RU.module')).Length
-  source_files = $sources; exception_files = $exceptions; fmz_reviewed_domains = $reviewedFmz
+  source_files = $sources; exception_files = $exceptions
   excluded_rules = $excluded; runtime_remote_rule_lists = @()
   wildcard_exception_hosts = @($wildcardExceptionHosts | Sort-Object)
-  mitm_definition_file = 'mitm-config.json'; script_ref = $mitmDefinition.script_ref; release = $mitmDefinition.release
-  compatibility_passthrough_roots = $mitmDefinition.passthrough_roots
-  script_entries = $scriptLines.Count; mitm_hostnames = @($mitmHosts | Sort-Object)
+  config_file = 'blockads-config.json'; release = $definition.release; module_type = 'domain-only'; mitm_enabled = $false
+  script_entries = 0; mitm_hostnames = @()
 }
 $hashes = @{}
 foreach ($source in ($sources+$exceptions)) {
   $hashes['AdGuard/'+$source] = (Get-FileHash -LiteralPath (Join-Path ($work+'\sources\adguard') $source) -Algorithm SHA256).Hash.ToLowerInvariant()
 }
-$hashes['fmz200/Shadowrocket/module/blockAds.srmodule'] = (Get-FileHash -LiteralPath ($work+'\upstream\Shadowrocket\module\blockAds.srmodule') -Algorithm SHA256).Hash.ToLowerInvariant()
-$hashes['BlockAds/mitm-config.json'] = (Get-FileHash -LiteralPath ($work+'\mitm-config.json') -Algorithm SHA256).Hash.ToLowerInvariant()
+$hashes['BlockAds/blockads-config.json'] = (Get-FileHash -LiteralPath ($work+'\blockads-config.json') -Algorithm SHA256).Hash.ToLowerInvariant()
 $lock['source_sha256'] = $hashes
 [IO.File]::WriteAllText(($out+'\sources.lock.json'), ($lock | ConvertTo-Json -Depth 6)+"`n", $utf8)
 Copy-Item -LiteralPath ($work+'\upstream\LICENSE') -Destination ($out+'\LICENSE') -Force
-Copy-Item -LiteralPath ($work+'\mitm-config.json') -Destination ($out+'\mitm-config.json') -Force
+Copy-Item -LiteralPath ($work+'\blockads-config.json') -Destination ($out+'\blockads-config.json') -Force
 Copy-Item -LiteralPath ($work+'\build-rules.ps1') -Destination ($out+'\build-rules.ps1') -Force
-[ordered]@{rules=$rules.Count;bytes=$lock.bytes;excluded=$excluded.Count;sha256=(Get-FileHash ($out+'\blockAds-RU.module') -Algorithm SHA256).Hash} | ConvertTo-Json -Compress
+[ordered]@{rules=$rules.Count;bytes=$lock.bytes;excluded=$excluded.Count;mitm_enabled=$false;sha256=(Get-FileHash ($out+'\blockAds-RU.module') -Algorithm SHA256).Hash} | ConvertTo-Json -Compress

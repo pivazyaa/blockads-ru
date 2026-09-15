@@ -5,14 +5,19 @@
         "sha256":  "bae44f87e639b55ac5e2b6e778ec8a7094303ecdd954b30bfb158fd79f437408"
     },
     {
+        "file":  "blockads-config.json",
+        "bytes":  166,
+        "sha256":  "394e4c0bb53c984845927c535728d6c3d955d12fa791c1249e975eec0f89cb75"
+    },
+    {
         "file":  "blockAds-RU.module",
-        "bytes":  80135,
-        "sha256":  "720ae38b15baf68226607c36c062fc1df2fb41a8b8d6506f9a8f236324082fbe"
+        "bytes":  77655,
+        "sha256":  "560ab0086534e311c174a89516031ec50561cde11e9b296ba9168d4a0027bee8"
     },
     {
         "file":  "build-rules.ps1",
-        "bytes":  15117,
-        "sha256":  "758601b7e68b84bbd4f432d457242e446a4c8d8907ae63f72b45624744c345cc"
+        "bytes":  10423,
+        "sha256":  "258a3581bcc82289a418e23eb86b129434e3344d2209eb76995ae31df0639212"
     },
     {
         "file":  "LICENSE",
@@ -20,44 +25,19 @@
         "sha256":  "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
     },
     {
-        "file":  "mitm-config.json",
-        "bytes":  1968,
-        "sha256":  "04fb92548e14fc0fcf6e19094212afab10d2eab5c4db48a32d08035b3c989699"
-    },
-    {
         "file":  "README.md",
-        "bytes":  20734,
-        "sha256":  "a8e3278d0908d61b4495b78f186f6d1e3d1e2a1964835355c8da361fce142cf2"
-    },
-    {
-        "file":  "Reddit-RU.module",
-        "bytes":  930,
-        "sha256":  "8e42121c4a6131bccf345fd6d926ba4c1c5bc72c248ace58c6ea66a909fc6670"
+        "bytes":  5074,
+        "sha256":  "1574ad1ef960be54568be458c0b7951317ed6fad23a67c510a31963c0009b998"
     },
     {
         "file":  "release-checks.json",
-        "bytes":  195,
-        "sha256":  "75dec759d83b901a51033ccc369f2d4fec9114be82374de9b61c31f459fe22c2"
-    },
-    {
-        "file":  "social-json.js",
-        "bytes":  5857,
-        "sha256":  "6b4411a6f89737038f08c7270bd90d4fa12cbbd520ab91545896b3da4c97fe35"
+        "bytes":  181,
+        "sha256":  "5f4231a7ff7c890e1ef55896618b16046f3f899657e407e3e0a4b82d7fecadef"
     },
     {
         "file":  "sources.lock.json",
-        "bytes":  30191,
-        "sha256":  "fa470d4d0a1e5c537038c762bc52974235a1e6a28aaae6527d4c5b0b13338952"
-    },
-    {
-        "file":  "test-blockads.js",
-        "bytes":  16747,
-        "sha256":  "03c0e589ff3b6e2b2ff6b732bed938d1637ed054cbbcd360ef408aed8ee1d5ec"
-    },
-    {
-        "file":  "test-results.json",
-        "bytes":  3534,
-        "sha256":  "128a1c834d01d62acea01c498e60ad62fd3a654d5aa0c7488fee9dbfb1428d1d"
+        "bytes":  26881,
+        "sha256":  "ec4321ea2f11ed913581ae749394c22e3528d28d95218c16fe69983db8fda5d6"
     },
     {
         "file":  "test-source-exceptions.ps1",
@@ -65,28 +45,8 @@
         "sha256":  "b498e7e155a29d045dd2b86e9097faa80b16502250e90f195361470ebf1ef0c5"
     },
     {
-        "file":  "TikTok-Web-RU.module",
-        "bytes":  671,
-        "sha256":  "ba83830dff9c4f674f72eee1eea06ac2e5624fc684e752bc5d2159233a0ae06f"
-    },
-    {
         "file":  "validate-release.ps1",
-        "bytes":  7950,
-        "sha256":  "87f10e3a0863fd2068fc324f3e0bcbd24677e8fb8b5a3a0366da87e314b8ce8e"
-    },
-    {
-        "file":  "X-RU.module",
-        "bytes":  471,
-        "sha256":  "32ba756b7bd63075c4e4be4b559b1a55c440b65c18db1c715836a28450c8f3ab"
-    },
-    {
-        "file":  "youtube-player.js",
-        "bytes":  5740,
-        "sha256":  "409aaf5079e6b76fca0717db32d40d593c7f2da7c366873dde82b32efa1db22a"
-    },
-    {
-        "file":  "YouTube-RU.module",
-        "bytes":  1130,
-        "sha256":  "f3738729bfe3e2dc5fdcc4e017715c0755ba2dbbdd2f6028a48a1e2bfa7ca54c"
+        "bytes":  4017,
+        "sha256":  "c7fb243d7a056ef896536f17f17428ecef07659c581a68ef7d8deb130178accb"
     }
 ]
